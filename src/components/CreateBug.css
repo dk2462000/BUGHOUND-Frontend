@@ -1,0 +1,176 @@
+.formBox {
+    background-color: #282c34;
+    color: white;
+    width: 100%;
+    height: 100%;
+    min-width: 100%;
+    height: 100vh;
+    margin: 0vw;
+    padding: 5vw;
+    position: relative;
+    display: grid;
+}
+
+.buttons {
+    background-color: #282c34;
+    color: white;
+    justify-content: center;
+    display: flex;
+}
+
+.body {
+    display: grid;
+    align-items: center;
+    justify-content: center;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    position: relative;
+    justify-content: space-around;
+    font-size: 33px;
+}
+
+.inputButtons {
+    height: 30%;
+    width: 400px;
+    padding: 0;
+    border: 0;
+}
+
+.back {
+    height: 20px;
+    width: 30px;
+    font-size: 17px !important;
+    color: crimson !important;
+}
+
+.createbutton {
+    position: relative;
+    bottom: 90px;
+}
+
+.flex {
+    display: flex;
+    justify-content: center;
+    /* align-items: center; */
+    flex-direction: column;
+    padding: 2px;
+}
+
+.flex-row {
+    flex-direction: row;
+}
+
+.flex-50 {
+    flex: 0 50%;
+}
+
+.max-width {
+    width: 100%;
+}
+
+.inputSpace {
+    position: relative;
+    margin-left: 20%;
+}
+
+.row1 {
+    margin-bottom: 10px;
+    justify-content: space-between !important;
+    display: flex;
+}
+
+.row2 {
+    margin-bottom: 10px;
+    display: flex !important;
+    flex-direction: row;
+    width: 100%;
+
+}
+
+.checkbox {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.submitType {
+    height: 50px;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+}
+
+.row3 {
+    margin-bottom: 10px;
+    justify-content: space-between;
+    display: flex !important;
+    flex-direction: row;
+}
+
+
+.createbugform {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: row;
+    margin: 20px 20px 20px 20px;
+}
+
+
+.MuiInputLabel-root {
+    color: black !important;
+}
+
+.problem-summary-textfeild,
+.problem-description-textfeild,
+.suggested-fix-textfeild {
+    margin-bottom: 10px;
+}
+
+/* .reproducible-checkbox{
+    padding-left: 8px;
+} */
+.program-select,
+.report-type-select,
+.severity-select {
+    background-color: white;
+    color: black;
+}
+
+.reportanddate {
+    display: flex;
+    margin-bottom: 10px;
+}
+
+.date {
+    margin-left: 20px;
+}
+
+
+
+.assignedTo {
+    margin-left: 20px;
+    display: flex;
+    flex-direction: column;
+    width: 30%;
+}
+
+.funcArea {
+    display: flex;
+    flex-direction: column;
+    width: 30%;
+}
+
+.row4 {
+    justify-content: space-between;
+    display: flex;
+    height: 75px;
+}
+
+.dateRT {
+    top: 21px;
+}
