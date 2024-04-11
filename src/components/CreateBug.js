@@ -1,136 +1,185 @@
-import React, { useState,useEffect } from "react";
-import "./CreateBug.css";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import Button from "@mui/material/Button";
-import { useNavigate } from "react-router-dom";
-import { ChevronLeft, Send } from "@mui/icons-material";
-import Box from "@mui/material/Box";
-import InputLabel from "@mui/material/InputLabel";
-import MenuItem from "@mui/material/MenuItem";
-import FormControl from "@mui/material/FormControl";
-import Select from "@mui/material/Select";
 import TextField from "@mui/material/TextField";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import MenuItem from "@mui/material/MenuItem";
+import "./CreateBug.css"; // Import your CSS file for additional styling
+import { useAuth } from '../context/AuthProvider';
+import DeveloperDashboard from "../developer/DeveloperDashboard";
+import { useNavigate } from 'react-router-dom';
+
 
 function CreateBug() {
+  const navigate = useNavigate();
+  const { auth } = useAuth();
+  const { username, userType } = auth;  
+  const demoNames = [];
+  demoNames.push(username);
+
+  const [bugData, setBugData] = useState({
+    buggyProgram: "",
+    buggyProgramVersion: "",
+    reportType: "",
+    severity: "",
+    attachments: [],
+    problemSummary: "",
+    reproducible: false,
+    detailedSummary: "",
+    suggestion: "",
+    reportedBy: "",
+    reportDate: "",
+  });
+
+  // const [employees, setEmployees] = useState([]);
+  
+  // // Fetch employees data from the API
+  // useEffect(() => {
+  //   axios.get("http://localhost:8080/employees")
+  //     .then(response => {
+  //       setEmployees(response.data);
+  //     })
+  //     .catch(error => {
+  //       console.error("Error fetching employees:", error);
+  //     });
+  // }, []);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setBugData({ ...bugData, [name]: value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.post("http://localhost:8080/bugs/createBug", bugData);
+      console.log("Bug report submitted:", response.data);
+      navigate("/DeveloperDashboard");
+      // Optionally, you can navigate to another page after successful submission
+    } catch (error) {
+      console.error("Error submitting bug report:", error);
+    }
+  };
+
   return (
-    <>
-      <LocalizationProvider dateAdapter={AdapterDayjs}>
-        <h1 style={{ display: "flex", justifyContent: "center" }}>
-          New Bug Report Entry Page
-        </h1>
-        <div className="createbugform">
-          <FormControl fullWidth>
-            <div className="row1">
-              <label>Program</label>
-              <Select
-                labelId="program"
-                className="program-select"
-                id="program-select"
-                label="Program"
-                size="small"
-                style={{ width: "25%" }}
-              >
-                <MenuItem>CodeSnap</MenuItem>
-                <MenuItem>CodeFlow</MenuItem>
-                <MenuItem>CodeCompass</MenuItem>
-                <MenuItem>CodeTracker</MenuItem>
-                <MenuItem>CodeGuard</MenuItem>
-                <MenuItem>CodeLens</MenuItem>
-                <MenuItem>CodeShield</MenuItem>
-                <MenuItem>CodeMentor</MenuItem>
-              </Select>
-              <label>Report Type</label>
-              <Select
-                labelId="Report Type"
-                className="report-type-select"
-                id="report-type-select"
-                label="Report Type"
-                size="small"
-                style={{ width: "25%" }}
-              >
-                <MenuItem>Functional Bugs</MenuItem>
-                <MenuItem>Usability Bugs</MenuItem>
-                <MenuItem>Performance Bugs</MenuItem>
-                <MenuItem>Compatibility Bugs</MenuItem>
-                <MenuItem>Security Bugs</MenuItem>
-                <MenuItem>Documentation Bugs</MenuItem>
-                <MenuItem>Localization Bugs</MenuItem>
-                <MenuItem>Integration Bugs</MenuItem>
-              </Select>
-              <label>Severity</label>
-              <Select
-                labelId="Severity"
-                id="severity-select"
-                label="Severity"
-                size="small"
-                style={{ width: "25%" }}
-              >
-                <MenuItem>Minor</MenuItem>
-                <MenuItem>Major</MenuItem>
-                <MenuItem>Serious</MenuItem>
-              </Select>
-            </div>
-            <div className="problem-summary-textfeild">
-              <TextField
-                required
-                id="outlined-required"
-                label="Problem Summary"
-                style={{ width: "80%" }}
-                defaultValue=""
-              />
-              <input type="checkbox" lable="Reproducible" />
-              Reproducible
-            </div>
-            <div className="problem-description-textfeild">
-              <TextField
-                placeholder="Problem Description"
-                multiline
-                rows={2}
-                style={{ width: "100%" }}
-              />
-            </div>
-            <div className="suggested-fix-textfeild">
-              <TextField
-                placeholder="Suggested Fix"
-                multiline
-                rows={2}
-                style={{ width: "100%" }}
-              />
-            </div>
-            <label>Reported By</label>
-            <div className="reportanddate">
-              <Select
-                labelId="Reported By"
-                className="reported-by-select"
-                id="report-by-select"
-                label="Reported by"
-                size="small"
-                style={{ width: "30%" }}
-              >
-                <MenuItem>Mia</MenuItem>
-                <MenuItem>William</MenuItem>
-                <MenuItem>Lucas</MenuItem>
-                <MenuItem>Ava</MenuItem>
-                <MenuItem>Emma</MenuItem>
-                <MenuItem>James</MenuItem>
-              </Select>
-              <div className="date">
-                <DatePicker
-                  label="Reported Date"
-                  inputFormat="dd-MM-yyyy"
-                  style={{ width: "30%" }}
-                />
-              </div>
-            </div>
-            {/* Continue with other form fields */}
-            {/* Remove other form fields and buttons */}
-          </FormControl>
-        </div>
-      </LocalizationProvider>
-    </>
+    <div className="create-bug-form">
+      <h1>New Bug Report Entry Page</h1>
+      <form onSubmit={handleSubmit}>
+        <TextField
+          required
+          id="buggyProgram"
+          label="Program"
+          value={bugData.buggyProgram}
+          onChange={handleChange}
+          name="buggyProgram"
+        />
+        <TextField
+          required
+          id="buggyProgramVersion"
+          label="Program Version"
+          value={bugData.buggyProgramVersion}
+          onChange={handleChange}
+          name="buggyProgramVersion"
+        />
+        <TextField
+          required
+          id="reportType"
+          label="Report Type"
+          value={bugData.reportType}
+          onChange={handleChange}
+          name="reportType"
+        />
+        <TextField
+          select
+          required
+          id="severity"
+          label="Severity"
+          value={bugData.severity}
+          onChange={handleChange}
+          name="severity"
+        >
+          {["Low", "Medium", "High", "Serious"].map((severityOption) => (
+            <MenuItem key={severityOption} value={severityOption}>
+              {severityOption}
+            </MenuItem>
+          ))}
+        </TextField>
+        <TextField
+          required
+          id="problemSummary"
+          label="Problem Summary"
+          multiline
+          rows={2}
+          value={bugData.problemSummary}
+          onChange={handleChange}
+          name="problemSummary"
+        />
+         <TextField
+          select
+          required
+          id="reproducible"
+          label="Reproducible"
+          value={bugData.reproducible}
+          onChange={handleChange}
+          name="reproducible"
+        >
+          
+          {["true","false"].map((severityOption) => (
+            <MenuItem key={severityOption} value={severityOption}>
+              {severityOption}
+            </MenuItem>
+          ))}
+
+</TextField>
+       
+        <TextField
+          required
+          id="detailedSummary"
+          label="Problem Description"
+          multiline
+          rows={4}
+          value={bugData.detailedSummary}
+          onChange={handleChange}
+          name="detailedSummary"
+        />
+        <TextField
+          id="suggestion"
+          label="Suggested Fix"
+          multiline
+          rows={4}
+          value={bugData.suggestion}
+          onChange={handleChange}
+          name="suggestion"
+        />
+       <TextField
+        select
+        required
+        id="reportedBy"
+        label="Reported By"
+        value={bugData.reportedBy}
+        onChange={handleChange}
+        name="reportedBy"
+        >
+        {demoNames.map((name, index) => (
+          <MenuItem key={index} value={name}>
+            {name}
+          </MenuItem>
+        ))}
+</TextField>
+
+        <TextField
+          required
+          id="reportDate"
+          label="Reported Date"
+          type="date"
+          value={bugData.reportDate}
+          onChange={handleChange}
+          name="reportDate"
+        />
+        <Button type="submit" variant="contained" color="primary">
+          Submit
+        </Button>
+      </form>
+    </div>
   );
 }
 
