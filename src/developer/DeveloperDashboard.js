@@ -39,8 +39,8 @@ const DeveloperDashboard = () => {
     navigate("/createbug");
   };
 
-  const navigateToBugDetails = (bugId) => {
-    navigate(`/bugdetails/${bugId}`);
+  const navigateToDeveloperBugDetails = (bugId) => {
+    navigate(`/developer/bugdetails/${bugId}`);
   };
 
   return (
@@ -59,7 +59,7 @@ const DeveloperDashboard = () => {
           {bugs.length > 0 ? bugs.map((bug) => (
             <tr key={bug.bugId}>
               <td>
-                <button onClick={() => navigateToBugDetails(bug.bugId)} style={{ border: 'none', background: 'none', padding: 0, color: 'blue', textDecoration: 'underline', cursor: 'pointer' }}>
+                <button onClick={() => navigateToDeveloperBugDetails(bug.bugId)} style={{ border: 'none', background: 'none', padding: 0, color: 'blue', textDecoration: 'underline', cursor: 'pointer' }}>
                   {bug.bugId}
                 </button>
               </td>
@@ -83,7 +83,7 @@ const DeveloperDashboard = () => {
           {assignedbugs.length > 0 ? assignedbugs.map((bug) => (
             <tr key={bug.bugId}>
               <td>
-                <button onClick={() => navigateToBugDetails(bug.bugId)} style={{ border: 'none', background: 'none', padding: 0, color: 'blue', textDecoration: 'underline', cursor: 'pointer' }}>
+                <button onClick={() => navigateToDeveloperBugDetails(bug.bugId)} style={{ border: 'none', background: 'none', padding: 0, color: 'blue', textDecoration: 'underline', cursor: 'pointer' }}>
                   {bug.bugId}
                 </button>
               </td>
