@@ -3,7 +3,6 @@ import { useAuth } from "./context/AuthProvider";
 
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import DeveloperDashboard from "./developer/DeveloperDashboard";
 
 const LOGIN_ENDPOINT = 'http://localhost:8080/user/authenticate';
 
@@ -45,7 +44,17 @@ const LoginForm = () => {
             setLoginSuccess(true);
             setUserType(roles);
 
-            navigate('/DeveloperDashboard');
+            if (roles === 'DEVELOPER') {
+                navigate('/DeveloperDashboard');
+            } else if (roles === 'TESTER') {
+                navigate('/TesterDashboard');
+            } else if (roles === 'MANAGER') {
+                navigate('/ManagerDashboard');
+            } else {
+                console.log('Role not recognized or user does not have a specific dashboard');
+                // Optionally navigate to a default or error page
+                // navigate('/default');
+            }
         } catch (error) {
             if (!error?.response) {
                 setErrorMessage('No Server Response');

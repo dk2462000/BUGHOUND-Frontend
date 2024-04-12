@@ -1,16 +1,16 @@
 import { useRef, useState, useEffect } from "react";
 import { faCheck, faTimes, faInfoCircle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import axios from './api/axios';
+import axios from "../api/axios";;
 
-const LOGIN_ENDPOINT = 'http://localhost:8080/user/createuser/'; // Endpoint for user authentication
+const LOGIN_ENDPOINT = 'http://localhost:8080/user/createuser'; // Endpoint for user authentication
 
 
 const USER_REGEX = /^[A-z][A-z0-9-_]{3,23}$/;
 const PWD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%]).{8,24}$/;
 const EMAIL_REGEX = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/;
 
-const Register = () => {
+const CreateUser = () => {
     const userRef = useRef();
     const firstNameRef = useRef();
     const lastNameRef = useRef();
@@ -27,7 +27,6 @@ const Register = () => {
     const [userType, setUserType] = useState('');
     const [matchPwd, setMatchPwd] = useState('');
     const [errMsg, setErrMsg] = useState('');
-    const [success, setSuccess] = useState(false);
 
     const [validUser, setValidUser] = useState(false);
     const [validFirstName, setValidFirstName] = useState(false);
@@ -80,7 +79,6 @@ const Register = () => {
                     withCredentials: true
                 }
             );
-            setSuccess(true);
             setUser('');
             setFirstName('');
             setLastName('');
@@ -103,14 +101,7 @@ const Register = () => {
 
     return (
         <>
-            {success ? (
-                <section>
-                    <h1>Success!</h1>
-                    <p>
-                        <a href="#">Sign In</a>
-                    </p>
-                </section>
-            ) : (
+           (
                 <section>
                     <p ref={errRef} className={errMsg ? "errmsg" : "offscreen"} aria-live="assertive">{errMsg}</p>
                     <h1>Register</h1>
@@ -254,25 +245,15 @@ const Register = () => {
                             required
                         >
                             <option value="">Select User Type</option>
-                            <option value="manager">Manager</option>
-                            <option value="tester">Tester</option>
+                            <option value="admin">Admin</option>
+                            <option value="user">User</option>
                             <option value="developer">Developer</option>
                         </select>
-
                         <button disabled={!validUser || !validFirstName || !validLastName || !validEmail || !validPwd || !validMatch || !userType}>Sign Up</button>
-                    </form>
-                    <p>
-                        Already registered?<br />
-                        <span className="line">
-                            {/*put router link here*/}
-                            <a href="/login">Sign In</a>
-                        </span>
-                    </p>
+                    </form>                    
                 </section>
-            )}
         </>
     )
 }
 
-export default Register;
-
+export default CreateUser;

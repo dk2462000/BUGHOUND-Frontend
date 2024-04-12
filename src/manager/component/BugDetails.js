@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import DeveloperDashboard from "../DeveloperDashboard";
 
-const DeveloperBugDetails = () => {
+
+const ManagerBugDetails = () => {
   const { bugId } = useParams();
   const [bugDetails, setBugDetails] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -61,8 +61,8 @@ const DeveloperBugDetails = () => {
     });
   };
 
-  const goToDeveloperDashboard = () => {
-    navigate('/DeveloperDashboard'); // Navigate to Developer Dashboard
+  const goToManagerDashboard = () => {
+    navigate('/ManagerDashboard'); // Navigate to Developer Dashboard
   };
 
   if (!bugDetails) return <div>Loading...</div>;
@@ -80,7 +80,7 @@ const DeveloperBugDetails = () => {
           <p><strong>Detailed Summary:</strong> {bugDetails.detailedSummary}</p>
           <p><strong>Suggestion:</strong> {bugDetails.suggestion}</p>
           <button onClick={() => setIsEditing(true)}>Edit Bug</button>
-          <button onClick={goToDeveloperDashboard}>Developer Dashboard</button>
+          <button onClick={goToManagerDashboard}>Manager Dashboard</button>
         </div>
       ) : (
         <form onSubmit={handleSubmit}>
@@ -144,4 +144,4 @@ const DeveloperBugDetails = () => {
   );
 };
 
-export default DeveloperBugDetails;
+export default ManagerBugDetails;
