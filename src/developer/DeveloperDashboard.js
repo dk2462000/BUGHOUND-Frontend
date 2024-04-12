@@ -40,7 +40,7 @@ const DeveloperDashboard = () => {
   };
 
   const navigateToDeveloperBugDetails = (bugId) => {
-    navigate(`/developer/bugdetails/${bugId}`);
+    navigate(`/developerbugdetails/${bugId}`);
   };
 
   return (
