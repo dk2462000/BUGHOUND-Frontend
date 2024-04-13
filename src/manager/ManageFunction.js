@@ -2,9 +2,11 @@ import React, { useEffect, useState } from 'react';
 import AppBar from './AppBar';
 import AddFunction from './AddFunction';
 import DisplayFunction from './DisplayFunction';
+import { useNavigate } from "react-router-dom";
 
 function ManageFunction() {
   const [functionList, setFunctionList] = useState([]);
+  const navigate = useNavigate();
 
   const fetchFunctions = () => {
     fetch("http://localhost:8080/functions")
@@ -22,10 +24,15 @@ function ManageFunction() {
   useEffect(() => {
     fetchFunctions();
   }, []);
+  
+  const handleBack = () => {
+    navigate('/ManagerDashboard', { replace: true }); // Navigates back to Manage Users
+  };
 
   return (
-    <div className="app">
+    <div>
       <AppBar title={"Manage Functions"}/>
+      <button style={{marginLeft: "20px"}} type="button" className="btn-submit" onClick={handleBack}>Back</button>
       <AddFunction onAddFunction={fetchFunctions}/>
       <DisplayFunction functionList={functionList} fetchFunctions={fetchFunctions} />
     </div>

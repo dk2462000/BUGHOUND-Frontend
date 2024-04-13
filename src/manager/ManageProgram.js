@@ -2,9 +2,11 @@ import React, { useEffect, useState } from 'react';
 import AppBar from './AppBar';
 import AddProgram from './AddProgram';
 import DisplayProgram from './DisplayProgram';
+import { useNavigate } from "react-router-dom";
 
 function ManageProgram() {
   const [programList, setProgramList] = useState([]);
+  const navigate = useNavigate();
 
   const fetchPrograms = () => {
     fetch("http://localhost:8080/programs")
@@ -24,9 +26,14 @@ function ManageProgram() {
     fetchPrograms();
   }, []);
 
+  const handleBack = () => {
+    navigate('/ManagerDashboard', { replace: true }); // Navigates back to Manage Users
+  };
+
   return (
-    <div className="app">
+    <div>
       <AppBar title={"Manage Programs"}/>
+      <button style={{marginLeft: "20px"}} type="button" className="btn-submit" onClick={handleBack}>Back</button>
       <AddProgram onAddProgram={fetchPrograms}/>
       <DisplayProgram programList={programList} fetchPrograms={fetchPrograms} />
     </div>

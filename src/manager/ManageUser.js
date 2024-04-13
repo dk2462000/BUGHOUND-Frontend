@@ -45,11 +45,16 @@ export default function ManageUser() {
     { field: 'userType', headerName: 'User Type', width: 120 },
   ];
 
+  const handleBack = () => {
+    navigate('/manage-user', { replace: true }); // Navigates back to Manage Users
+  };
+
   return (
     <div>
       <AppBar title="Users Management" /> 
+      <button style={{marginBottom:"20px", marginLeft:"20px"}} type="button" className="btn-submit" onClick={handleBack}>Back</button>
         <div style={{ height: 400, width: '100%', margin: 'auto' }}>
-      <DataGrid
+        <DataGrid
         rows={userList}
         columns={columns}
         pageSize={5}
