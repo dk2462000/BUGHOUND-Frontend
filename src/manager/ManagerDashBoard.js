@@ -13,6 +13,7 @@ import Paper from '@mui/material/Paper';
 import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
 import * as XLSX from 'xlsx';
+import Button from '@mui/material/Button';
 
 const ManagerDashboard = () => {
     const navigate = useNavigate();
@@ -106,18 +107,60 @@ const ManagerDashboard = () => {
     return (
         <div>
             <AppBar title="Manager Dashboard" />
-            <div style={dashboardStyle}>
-            <button style={buttonStyle} onClick={() => navigate('/create-bug')}>Create Bug</button>
-            <button style={buttonStyle} onClick={() => navigate('/manage-program')}>Manage Program</button>
-            <button style={buttonStyle} onClick={() => navigate('/manage-function')}>Manage Function</button>
-            <button style={buttonStyle} onClick={() => navigate('/manage-user')}>User Management</button>
-            </div>
-            <Typography variant="h4" textAlign="auto" component="div" sx={{ flexGrow: 2 }}>
-            Bug Report
-            </Typography>
-            <button onClick={() => exportToExcel(filteredBugs, 'Bug_Report')} style={buttonStyle}>
-            Export to Excel
-            </button>
+            <TableContainer component={Paper} style={{ maxWidth: 650, margin: '50px auto', padding: '20px' }}>
+                <Typography style={{ fontFamily: '"Segoe UI", sans-serif', flexGrow: 2 }} variant="h4" textAlign="auto" component="div" sx={{ flexGrow: 2 }}>
+                Manager Operations
+                </Typography>
+                <div style={{ height: '2px', backgroundColor: 'black', margin: '20px 0', width: '100%' }}></div>
+                <Table aria-label="Dashboard Options">
+                    <TableBody>
+                        <TableRow>
+                            <TableCell style={{ fontWeight: "bold" }} component="th" scope="row">
+                                Report a New Bug
+                            </TableCell>
+                            <TableCell align="auto">
+                                <Button variant="contained" color="primary" onClick={() => navigate('/create-bug')}>
+                                    Report Bug
+                                </Button>
+                            </TableCell>
+                        </TableRow>
+                        <TableRow>
+                            <TableCell style={{ fontWeight: "bold" }} component="th" scope="row">
+                                Add/Manage Programs
+                            </TableCell>
+                            <TableCell align="auto">
+                                <Button variant="contained" color="primary" onClick={() => navigate('/manage-program')}>
+                                    Manage Programs
+                                </Button>
+                            </TableCell>
+                        </TableRow>
+                        <TableRow>
+                            <TableCell style={{ fontWeight: "bold" }} component="th" scope="row">
+                                Add/Manage Programs
+                            </TableCell>
+                            <TableCell align="auto">
+                                <Button variant="contained" color="primary" onClick={() => navigate('/manage-function')}>
+                                    Manage Functions
+                                </Button>
+                            </TableCell>
+                        </TableRow>
+                        <TableRow>
+                            <TableCell style={{ fontWeight: "bold" }} component="th" scope="row">
+                                Add/Manage Users
+                            </TableCell>
+                            <TableCell align="auto">
+                                <Button variant="contained" color="primary" onClick={() => navigate('/manage-user')}>
+                                    Manage Users
+                                </Button>
+                            </TableCell>
+                        </TableRow>
+                    </TableBody>
+                </Table>
+            </TableContainer>
+            <div style={{ height: '2px', backgroundColor: 'black', margin: '20px 0', width: '100%' }}></div>
+            <Typography style={{ fontFamily: '"Segoe UI", sans-serif', flexGrow: 2 }} variant="h4" textAlign="auto" component="div">
+            Bugs Report
+            </Typography>                                   
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
             <TableContainer component={Paper} style={{ margin: '20px', maxWidth: '95%', maxHeight: 500, border: "3px solid rgb(0, 0, 0)"}}>
                 <div style={{ display: 'flex', justifyContent: 'flex-start', padding: '10px' }}>
@@ -178,7 +221,7 @@ const ManagerDashboard = () => {
                         <TableCell>{bug.reportType || '-'}</TableCell>
                         <TableCell>{bug.severity || '-'}</TableCell>
                         <TableCell>{bug.reportedBy || '-'}</TableCell>
-                        <TableCell>{bug.reportDate || '-'}</TableCell>
+                        <TableCell>{bug.reportDate ? new Date(bug.reportDate).toLocaleDateString() : '-'}</TableCell>
                         <TableCell>{bug.functionalArea || '-'}</TableCell>
                         <TableCell>{bug.assignedTo || '-'}</TableCell>
                         <TableCell>{bug.status || '-'}</TableCell>
@@ -191,6 +234,9 @@ const ManagerDashboard = () => {
                 </Table>
             </TableContainer>
             </div>
+            <button onClick={() => exportToExcel(filteredBugs, 'Bug_Report')} style={buttonStyle}>
+            Export to Excel
+            </button>
         </div>
     );
 };

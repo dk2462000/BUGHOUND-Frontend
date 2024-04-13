@@ -17,7 +17,6 @@ import Signup from "./Signup"
 import Register from "./Register"
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { useState } from 'react';
-
 import { AuthProvider } from './context/AuthProvider';
 import TesterBugDetails from './tester/component/BugDetails';
 import ManagerBugDetails from './manager/component/BugDetails';
@@ -37,17 +36,13 @@ function App() {
           <Route path="/TesterDashboard" element={<TesterDashboard/>}/>
           <Route path="/testerbugdetails/:bugId" element={<TesterBugDetails />} />
           <Route path="/ManagerDashboard" element={<ManagerDashboard />} />
-                <Route path="/manage-program" element={<ManageProgram />} />
-                <Route path="/manage-function" element={<ManageFunction />} />
-                <Route path="/manage-user" element={<UserOperation />} />
-                <Route path="/create-user" element={<CreateUser />} />
-                <Route path="/manage-users" element={<ManageUser />} />
-                <Route path="/edit-user/:username" element={<EditUser />} />
-                <Route path="/managerbugdetails/:bugId" element={<ManagerBugDetails />} />
-
-            
-
-          
+          <Route path="/manage-program" element={<ManageProgram />} />
+          <Route path="/manage-function" element={<ManageFunction />} />
+          <Route path="/manage-user" element={<UserOperation />} />
+          <Route path="/create-user" element={<CreateUser />} />
+          <Route path="/manage-users" element={<ManageUser />} />
+          <Route path="/edit-user/:username" element={<EditUser />} />
+          <Route path="/managerbugdetails/:bugId" element={<ManagerBugDetails />} />                  
         </Routes>
       </Router>
     </div>
