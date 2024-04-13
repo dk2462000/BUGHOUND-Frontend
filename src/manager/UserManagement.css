@@ -102,3 +102,10 @@
     height: 1px;
     overflow: hidden;
 }
+
+.bughound-logo {/* Adjust path as needed */
+    width: 500px ;  /* Set the width as needed */
+    height: auto;  /* Maintain aspect ratio */
+    display: block;
+    margin: 0 auto; /* Center the logo if desired */
+}

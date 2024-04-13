@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import AppBar from './AppBar';
+import AppBar from '../AppBar';
 import AddProgram from './AddProgram';
 import DisplayProgram from './DisplayProgram';
 import { useNavigate } from "react-router-dom";

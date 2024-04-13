@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import AppBar from './AppBar';
+import AppBar from '../AppBar';
 import axios from 'axios';
 import Typography from '@mui/material/Typography';
 import Table from '@mui/material/Table';

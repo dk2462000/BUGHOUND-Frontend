@@ -1,7 +1,7 @@
 import { useRef, useState, useEffect } from "react";
 import axios from '../api/axios';
 import './UserManagement.css'; 
-import AppBar from './AppBar';
+import AppBar from '../AppBar';
 import { useNavigate } from "react-router-dom";
 
 const LOGIN_ENDPOINT = 'http://localhost:8080/user/createuser';

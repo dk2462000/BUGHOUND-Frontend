@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import AppBar from './AppBar';
+import AppBar from '../AppBar';
 import AddFunction from './AddFunction';
 import DisplayFunction from './DisplayFunction';
 import { useNavigate } from "react-router-dom";

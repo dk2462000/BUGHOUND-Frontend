@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button, Table, TableBody, TableCell, TableContainer, TableRow, Paper } from '@mui/material';
-import AppBar from './AppBar';
+import AppBar from '../AppBar';
 
 function UserOperation() {
     const navigate = useNavigate();

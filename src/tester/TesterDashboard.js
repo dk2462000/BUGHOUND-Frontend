@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthProvider";
+import AppBar from '../AppBar';
 
 const TesterDashboard = () => {
   const { auth } = useAuth();
@@ -45,6 +46,7 @@ const TesterDashboard = () => {
 
   return (
     <div>
+      <AppBar title="Tester Dashboard" />
       <button onClick={navigateToCreateBug}>Create Bug</button>
       <h2>Reported Bugs</h2>
       <table>

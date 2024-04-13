@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from '../api/axios';
-import AppBar from './AppBar';
+import AppBar from '../AppBar';
 import './UserManagement.css'; 
 
 const UPDATE_ENDPOINT = 'http://localhost:8080/user/update/';

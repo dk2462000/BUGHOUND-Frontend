@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import { Typography, Button } from '@mui/material';
 import { useNavigate } from 'react-router-dom'; // Import for navigation
-import AppBar from './AppBar'; 
+import AppBar from '../AppBar'; 
 
 export default function ManageUser() {
   const [userList, setUserList] = useState([]);
