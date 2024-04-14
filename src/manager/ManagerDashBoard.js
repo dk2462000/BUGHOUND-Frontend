@@ -12,8 +12,8 @@ import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
-import * as XLSX from 'xlsx';
 import Button from '@mui/material/Button';
+import * as XLSX from 'xlsx';
 
 const ManagerDashboard = () => {
     const navigate = useNavigate();
@@ -31,13 +31,6 @@ const ManagerDashboard = () => {
         color: 'white',
         border: 'none',
         borderRadius: '5px'
-    };
-
-    const dashboardStyle = {
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        padding: '20px'
     };
 
     const enumFields = {
@@ -163,8 +156,8 @@ const ManagerDashboard = () => {
             </Typography>                                   
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
             <TableContainer component={Paper} style={{ margin: '20px', maxWidth: '95%', maxHeight: 500, border: "3px solid rgb(0, 0, 0)"}}>
-                <div style={{ display: 'flex', justifyContent: 'flex-start', padding: '10px' }}>
-                    <TextField
+            <div style={{ display: 'flex', justifyContent: 'flex-start', padding: '10px' }}>
+                <TextField
                     select
                     label="Filter by"
                     value={filter}
@@ -172,36 +165,47 @@ const ManagerDashboard = () => {
                     helperText="Select the column to filter"
                     variant="outlined"
                     style={{ margin: '10px', width: '200px' }}
-                    >
+                >
                     <MenuItem value="">None</MenuItem>
                     {Object.entries(fieldDisplayNameMapping).map(([key, value]) => (
-                        <MenuItem key={key} value={key}>{value}</MenuItem>
+                    <MenuItem key={key} value={key}>{value}</MenuItem>
+                    ))}
+                </TextField>
+                {filter === 'reportDate' ? (
+                    <TextField
+                    type="text"
+                    label="Enter Date (YYYY-MM-DD)"
+                    value={searchTerm}
+                    onChange={handleSearchChange}
+                    variant="outlined"
+                    style={{ margin: '10px', width: '200px' }}
+                    placeholder="YYYY-MM-DD"
+                    helperText="Use date format: YYYY-MM-DD"
+                  />
+                ) : filter && enumFields[filter] ? (
+                    <TextField
+                    select
+                    label="Search"
+                    value={searchTerm}
+                    onChange={handleSearchChange}
+                    variant="outlined"
+                    style={{ margin: '10px', width: '200px' }}
+                    >
+                    <MenuItem value="">-</MenuItem>
+                    {enumFields[filter].map(option => (
+                        <MenuItem key={option} value={option}>{option}</MenuItem>
                     ))}
                     </TextField>
-                    {filter && enumFields[filter] ? (
-                        <TextField
-                            select
-                            label="Search"
-                            value={searchTerm}
-                            onChange={handleSearchChange}
-                            variant="outlined"
-                            style={{ margin: '10px', width: '200px' }}
-                        >
-                            <MenuItem value="">-</MenuItem>
-                            {enumFields[filter].map(option => (
-                                <MenuItem key={option} value={option}>{option}</MenuItem>
-                            ))}
-                        </TextField>
-                    ) : (
-                        <TextField
-                            label="Search"
-                            value={searchTerm}
-                            onChange={handleSearchChange}
-                            variant="outlined"
-                            style={{ margin: '10px', width: '200px' }}
-                            disabled={!filter}
-                        />
-                    )}
+                ) : (
+                    <TextField
+                    label="Search"
+                    value={searchTerm}
+                    onChange={handleSearchChange}
+                    variant="outlined"
+                    style={{ margin: '10px', width: '200px' }}
+                    disabled={!filter}
+                    />
+                )}
                 </div>
                 <Table sx={{ minWidth: 650 }} aria-label="simple table">
                     <TableHead style={{background: "#4fade4", fontWeight:"bold"}}>
@@ -221,7 +225,7 @@ const ManagerDashboard = () => {
                         <TableCell>{bug.reportType || '-'}</TableCell>
                         <TableCell>{bug.severity || '-'}</TableCell>
                         <TableCell>{bug.reportedBy || '-'}</TableCell>
-                        <TableCell>{bug.reportDate ? new Date(bug.reportDate).toLocaleDateString() : '-'}</TableCell>
+                        <TableCell>{bug.reportDate ? bug.reportDate.split('T')[0] : '-'}</TableCell>
                         <TableCell>{bug.functionalArea || '-'}</TableCell>
                         <TableCell>{bug.assignedTo || '-'}</TableCell>
                         <TableCell>{bug.status || '-'}</TableCell>

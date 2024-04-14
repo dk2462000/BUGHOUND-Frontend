@@ -109,3 +109,27 @@
     display: block;
     margin: 0 auto; /* Center the logo if desired */
 }
+
+.form-group-1 {
+    display: flex;
+    align-items: center; /* Aligns items vertically in the center */
+    margin-bottom: 20px;
+}
+
+.form-group-1 label {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #000000;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    margin-right: 10px; /* Adds some space between the label and the input */
+    white-space: nowrap; /* Prevents the label from wrapping */
+}
+
+.form-group-1 input,
+.form-group-1 select {
+    padding: 0.5rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    flex-grow: 1; /* Makes the input grow to fill available space */
+}
