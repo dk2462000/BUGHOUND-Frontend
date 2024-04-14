@@ -112,7 +112,7 @@ const ManagerDashboard = () => {
                                 Report a New Bug
                             </TableCell>
                             <TableCell align="auto">
-                                <Button variant="contained" color="primary" onClick={() => navigate('/create-bug')}>
+                                <Button variant="contained" color="primary" onClick={() => navigate('/createbug')}>
                                     Report Bug
                                 </Button>
                             </TableCell>
