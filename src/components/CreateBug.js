@@ -12,7 +12,7 @@ import { useNavigate } from 'react-router-dom';
 function CreateBug() {
   const navigate = useNavigate();
   const { auth } = useAuth();
-  const { username, userType } = auth;  
+  const { user:username, userType } = auth;  
   const demoNames = [];
   demoNames.push(username);
 
@@ -29,6 +29,12 @@ function CreateBug() {
     reportedBy: "",
     reportDate: "",
   });
+
+  const [files, setFiles] = useState([]);
+
+  const handleFileChange = (event) => {
+    setFiles([...event.target.files]);
+  };
 
   // const [employees, setEmployees] = useState([]);
   
@@ -50,11 +56,23 @@ function CreateBug() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const attachments = await Promise.all(files.map(async (file, index) => {
+      const reader = new FileReader();
+      return new Promise((resolve, reject) => {
+        reader.onload = () => {
+          const byteArray = new Uint8Array(reader.result);
+          resolve({ attachmentId: `${index}`, attachmentData: Array.from(byteArray) });
+        };
+        reader.onerror = reject;
+        reader.readAsArrayBuffer(file);
+      });
+    }));
+
+    const fullBugData = { ...bugData, attachments };
     try {
-      const response = await axios.post("http://localhost:8080/bugs/createBug", bugData);
+      const response = await axios.post("http://localhost:8080/bugs/createBug", fullBugData);
       console.log("Bug report submitted:", response.data);
       navigate("/DeveloperDashboard");
-      // Optionally, you can navigate to another page after successful submission
     } catch (error) {
       console.error("Error submitting bug report:", error);
     }
@@ -129,7 +147,7 @@ function CreateBug() {
             </MenuItem>
           ))}
 
-</TextField>
+        </TextField>
        
         <TextField
           required
@@ -150,21 +168,21 @@ function CreateBug() {
           onChange={handleChange}
           name="suggestion"
         />
-       <TextField
-        select
-        required
-        id="reportedBy"
-        label="Reported By"
-        value={bugData.reportedBy}
-        onChange={handleChange}
-        name="reportedBy"
-        >
-        {demoNames.map((name, index) => (
-          <MenuItem key={index} value={name}>
-            {name}
-          </MenuItem>
-        ))}
-</TextField>
+        <TextField
+          select
+          required
+          id="reportedBy"
+          label="Reported By"
+          value={bugData.reportedBy}
+          onChange={handleChange}
+          name="reportedBy"
+          >
+          {demoNames.map((name, index) => (
+            <MenuItem key={index} value={name}>
+              {name}
+            </MenuItem>
+          ))}
+        </TextField>
 
         <TextField
           required
@@ -175,6 +193,12 @@ function CreateBug() {
           onChange={handleChange}
           name="reportDate"
         />
+        <input
+          type="file"
+          multiple
+          onChange={handleFileChange}
+        />
+
         <Button type="submit" variant="contained" color="primary">
           Submit
         </Button>

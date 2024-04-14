@@ -20,6 +20,7 @@ import { useState } from 'react';
 import { AuthProvider } from './context/AuthProvider';
 import TesterBugDetails from './tester/component/BugDetails';
 import ManagerBugDetails from './manager/component/BugDetails';
+import DownloadAttachment from './components/DownloadAttachment';
 
 function App() {
   return (
@@ -27,7 +28,7 @@ function App() {
     <div className="App">
       <Router>
         <Routes>
-          <Route path="/" element={<Login/>}/>
+          <Route path="/rest" element={<Login/>}/>
           <Route path="/register" element={<Register/>}/>
           <Route path="/CreateBug" element={<CreateBug/>}/>
           <Route path="/Updatebug" element={<Updatebug/>}/>
@@ -42,7 +43,8 @@ function App() {
           <Route path="/create-user" element={<CreateUser />} />
           <Route path="/manage-users" element={<ManageUser />} />
           <Route path="/edit-user/:username" element={<EditUser />} />
-          <Route path="/managerbugdetails/:bugId" element={<ManagerBugDetails />} />                  
+          <Route path="/managerbugdetails/:bugId" element={<ManagerBugDetails />} />    
+          <Route path="/" element={<DownloadAttachment bugId={31}/>} />      
         </Routes>
       </Router>
     </div>
