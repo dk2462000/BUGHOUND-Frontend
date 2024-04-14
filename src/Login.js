@@ -106,12 +106,7 @@ const LoginForm = () => {
                         />
                         <button type="submit">Sign In</button>
                     </form>
-                    <p>
-                        Need an Account?<br />
-                        <span className="line">
-                            <a href="#">Sign Up</a>
-                        </span>
-                    </p>
+                    
                 </section>
             )}
         </>
