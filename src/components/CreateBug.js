@@ -1,82 +1,73 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import axios from "axios";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import MenuItem from "@mui/material/MenuItem";
-import "./CreateBug.css"; // Import your CSS file for additional styling
 import { useAuth } from '../context/AuthProvider';
-import DeveloperDashboard from "../developer/DeveloperDashboard";
 import { useNavigate } from 'react-router-dom';
-
+import "./CreateBug.css";
 
 function CreateBug() {
-  const navigate = useNavigate();
-  const { auth } = useAuth();
-  const { user:username, userType } = auth;  
-  const demoNames = [];
-  demoNames.push(username);
+    const navigate = useNavigate();
+    const { auth } = useAuth();
+    const { user: username } = auth;
 
-  const [bugData, setBugData] = useState({
-    buggyProgram: "",
-    buggyProgramVersion: "",
-    reportType: "",
-    severity: "",
-    attachments: [],
-    problemSummary: "",
-    reproducible: false,
-    detailedSummary: "",
-    suggestion: "",
-    reportedBy: "",
-    reportDate: "",
-  });
+    const demoNames = [];
+    demoNames.push(username);
+    const [bugData, setBugData] = useState({
+        buggyProgram: "",
+        buggyProgramVersion: "",
+        reportType: "",
+        severity: "",
+        attachments: [],
+        problemSummary: "",
+        reproducible: false,
+        detailedSummary: "",
+        suggestion: "",
+        reportedBy: username,
+        reportDate: "",
+    });
+    const [files, setFiles] = useState([]);
 
-  const [files, setFiles] = useState([]);
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setBugData({ ...bugData, [name]: value });
+    };
 
-  const handleFileChange = (event) => {
-    setFiles([...event.target.files]);
-  };
+    const handleFileChange = (event) => {
+        const selectedFiles = event.target.files;
+        const newFiles = Array.from(selectedFiles);
+        const totalFiles = [...files, ...newFiles].slice(0, 3);  // Limit to 3 files total
+        setFiles(totalFiles);
+    };
 
-  // const [employees, setEmployees] = useState([]);
-  
-  // // Fetch employees data from the API
-  // useEffect(() => {
-  //   axios.get("http://localhost:8080/employees")
-  //     .then(response => {
-  //       setEmployees(response.data);
-  //     })
-  //     .catch(error => {
-  //       console.error("Error fetching employees:", error);
-  //     });
-  // }, []);
+    const removeFile = (index) => {
+        setFiles(current => current.filter((_, i) => i !== index));
+    };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setBugData({ ...bugData, [name]: value });
-  };
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        const attachments = await Promise.all(files.map(async (file, index) => {
+            const reader = new FileReader();
+            return new Promise((resolve, reject) => {
+                reader.onload = () => {
+                    const byteArray = new Uint8Array(reader.result);
+                    resolve({ attachmentId: `${index + 1}`, attachmentData: Array.from(byteArray) });
+                };
+                reader.onerror = reject;
+                reader.readAsArrayBuffer(file);
+            });
+        }));
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const attachments = await Promise.all(files.map(async (file, index) => {
-      const reader = new FileReader();
-      return new Promise((resolve, reject) => {
-        reader.onload = () => {
-          const byteArray = new Uint8Array(reader.result);
-          resolve({ attachmentId: `${index}`, attachmentData: Array.from(byteArray) });
-        };
-        reader.onerror = reject;
-        reader.readAsArrayBuffer(file);
-      });
-    }));
-
-    const fullBugData = { ...bugData, attachments };
-    try {
-      const response = await axios.post("http://localhost:8080/bugs/createBug", fullBugData);
-      console.log("Bug report submitted:", response.data);
-      navigate("/DeveloperDashboard");
-    } catch (error) {
-      console.error("Error submitting bug report:", error);
-    }
-  };
+        const fullBugData = { ...bugData, attachments };
+        try {
+            const response = await axios.post("http://localhost:8080/bugs/createBug", fullBugData);
+            console.log("Bug report submitted:", response.data);
+            navigate("/DeveloperDashboard");
+        } catch (error) {
+            console.error("Error submitting bug report:", error);
+        }
+    };
 
   return (
     <div className="create-bug-form">
@@ -193,12 +184,13 @@ function CreateBug() {
           onChange={handleChange}
           name="reportDate"
         />
-        <input
-          type="file"
-          multiple
-          onChange={handleFileChange}
-        />
-
+        <input type="file" multiple onChange={handleFileChange} />
+                {files.map((file, index) => (
+                    <div key={index}>
+                        {file.name}
+                        <Button onClick={() => removeFile(index)} color="secondary">Remove</Button>
+                    </div>
+                ))}
         <Button type="submit" variant="contained" color="primary">
           Submit
         </Button>
