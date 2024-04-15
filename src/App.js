@@ -44,7 +44,7 @@ function App() {
           <Route path="/manage-users" element={<ManageUser />} />
           <Route path="/edit-user/:username" element={<EditUser />} />
           <Route path="/managerbugdetails/:bugId" element={<ManagerBugDetails />} />    
-          <Route path="/" element={<DownloadAttachment bugId={33}/>} />      
+          <Route path="/" element={<DownloadAttachment bugId={55}/>} />      
         </Routes>
       </Router>
     </div>

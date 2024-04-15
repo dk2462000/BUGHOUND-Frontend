@@ -12,8 +12,8 @@ function DownloadAttachment({ bugId }) {
                 if (response.data.attachments && response.data.attachments.length > 0) {
                     const fetchedAttachments = response.data.attachments.map((attachment, index) => ({
                         ...attachment,
-                        url: byteArrayToBlobUrl(attachment.attachment),
-                        extension: determineExtension(attachment) // This could be a future function to determine file type
+                        url: byteArrayToBlobUrl(attachment.attachment, attachment.attachmentExt),
+                        extension: attachment.attachmentExt // Use the extension from the database
                     }));
                     setAttachments(fetchedAttachments);
                 } else {
@@ -28,15 +28,21 @@ function DownloadAttachment({ bugId }) {
         fetchBugDetails();
     }, [bugId]);
 
-    function byteArrayToBlobUrl(byteArray) {
+    function byteArrayToBlobUrl(byteArray, fileExtension) {
         const byteArrayInFormat = new Uint8Array(atob(byteArray).split('').map(char => char.charCodeAt(0)));
-        const blob = new Blob([byteArrayInFormat], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        const blob = new Blob([byteArrayInFormat], { type: getMimeType(fileExtension) });
         return URL.createObjectURL(blob);
     }
 
-    function determineExtension(attachment) {
-        // Placeholder for future logic to determine file extension dynamically
-        return 'xlsx'; // Default to xlsx as per current requirements
+    function getMimeType(extension) {
+        switch(extension.toLowerCase()) {
+            case 'pdf': return 'application/pdf';
+            case 'xlsx': return 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+            case 'txt': return 'text/plain';
+            case 'jpg': case 'jpeg': return 'image/jpeg';
+            case 'png': return 'image/png';
+            default: return 'application/octet-stream'; // A generic binary data MIME type
+        }
     }
 
     return (

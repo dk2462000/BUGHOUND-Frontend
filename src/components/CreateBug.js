@@ -28,6 +28,7 @@ function CreateBug() {
         reportDate: "",
     });
     const [files, setFiles] = useState([]);
+    const [warning, setWarning] = useState('');
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -35,14 +36,25 @@ function CreateBug() {
     };
 
     const handleFileChange = (event) => {
-        const selectedFiles = event.target.files;
-        const newFiles = Array.from(selectedFiles);
-        const totalFiles = [...files, ...newFiles].slice(0, 3);  // Limit to 3 files total
+        if (files.length >= 3) {
+            alert('You can only attach a maximum of three files.');
+            event.target.value = '';
+            return;
+        }
+
+        const selectedFiles = Array.from(event.target.files);
+        const newFiles = selectedFiles.filter(file => file.size <= 2097152); // Limit file size to 2MB
+        if (selectedFiles.some(file => file.size > 2097152)) {
+          alert('One or more files exceed the maximum size limit of 2MB and were not added.');
+          event.target.value = '';
+        }
+        const totalFiles = [...files, ...newFiles].slice(0, 3); // Limit to 3 files total
         setFiles(totalFiles);
     };
 
     const removeFile = (index) => {
         setFiles(current => current.filter((_, i) => i !== index));
+        setWarning('');
     };
 
     const handleSubmit = async (e) => {
@@ -52,7 +64,14 @@ function CreateBug() {
             return new Promise((resolve, reject) => {
                 reader.onload = () => {
                     const byteArray = new Uint8Array(reader.result);
-                    resolve({ attachmentId: `${index + 1}`, attachmentData: Array.from(byteArray) });
+                    const blob = new Blob([byteArray]);
+                    console.log("Size of the blob in bytes:", blob.size);
+                    const extension = file.name.split('.').pop();
+                    resolve({
+                        attachmentId: `${index + 1}`,
+                        attachmentExt: extension, // Include the file extension
+                        attachmentData: Array.from(byteArray)
+                    });
                 };
                 reader.onerror = reject;
                 reader.readAsArrayBuffer(file);
@@ -69,134 +88,40 @@ function CreateBug() {
         }
     };
 
-  return (
-    <div className="create-bug-form">
-      <h1>New Bug Report Entry Page</h1>
-      <form onSubmit={handleSubmit}>
-        <TextField
-          required
-          id="buggyProgram"
-          label="Program"
-          value={bugData.buggyProgram}
-          onChange={handleChange}
-          name="buggyProgram"
-        />
-        <TextField
-          required
-          id="buggyProgramVersion"
-          label="Program Version"
-          value={bugData.buggyProgramVersion}
-          onChange={handleChange}
-          name="buggyProgramVersion"
-        />
-        <TextField
-          required
-          id="reportType"
-          label="Report Type"
-          value={bugData.reportType}
-          onChange={handleChange}
-          name="reportType"
-        />
-        <TextField
-          select
-          required
-          id="severity"
-          label="Severity"
-          value={bugData.severity}
-          onChange={handleChange}
-          name="severity"
-        >
-          {["Low", "Medium", "High", "Serious"].map((severityOption) => (
-            <MenuItem key={severityOption} value={severityOption}>
-              {severityOption}
-            </MenuItem>
-          ))}
-        </TextField>
-        <TextField
-          required
-          id="problemSummary"
-          label="Problem Summary"
-          multiline
-          rows={2}
-          value={bugData.problemSummary}
-          onChange={handleChange}
-          name="problemSummary"
-        />
-         <TextField
-          select
-          required
-          id="reproducible"
-          label="Reproducible"
-          value={bugData.reproducible}
-          onChange={handleChange}
-          name="reproducible"
-        >
-          
-          {["true","false"].map((severityOption) => (
-            <MenuItem key={severityOption} value={severityOption}>
-              {severityOption}
-            </MenuItem>
-          ))}
-
-        </TextField>
-       
-        <TextField
-          required
-          id="detailedSummary"
-          label="Problem Description"
-          multiline
-          rows={4}
-          value={bugData.detailedSummary}
-          onChange={handleChange}
-          name="detailedSummary"
-        />
-        <TextField
-          id="suggestion"
-          label="Suggested Fix"
-          multiline
-          rows={4}
-          value={bugData.suggestion}
-          onChange={handleChange}
-          name="suggestion"
-        />
-        <TextField
-          select
-          required
-          id="reportedBy"
-          label="Reported By"
-          value={bugData.reportedBy}
-          onChange={handleChange}
-          name="reportedBy"
-          >
-          {demoNames.map((name, index) => (
-            <MenuItem key={index} value={name}>
-              {name}
-            </MenuItem>
-          ))}
-        </TextField>
-
-        <TextField
-          required
-          id="reportDate"
-          label="Reported Date"
-          type="date"
-          value={bugData.reportDate}
-          onChange={handleChange}
-          name="reportDate"
-        />
-        <input type="file" multiple onChange={handleFileChange} />
+    return (
+        <div className="create-bug-form">
+            <h1>New Bug Report Entry Page</h1>
+            <form onSubmit={handleSubmit}>
+                <TextField required id="buggyProgram" label="Program" value={bugData.buggyProgram} onChange={handleChange} name="buggyProgram" />
+                <TextField required id="buggyProgramVersion" label="Program Version" value={bugData.buggyProgramVersion} onChange={handleChange} name="buggyProgramVersion" />
+                <TextField required id="reportType" label="Report Type" value={bugData.reportType} onChange={handleChange} name="reportType" />
+                <TextField select required id="severity" label="Severity" value={bugData.severity} onChange={handleChange} name="severity">
+                    {["Low", "Medium", "High", "Serious"].map(option => (<MenuItem key={option} value={option}>{option}</MenuItem>))}
+                </TextField>
+                <TextField required id="problemSummary" label="Problem Summary" multiline rows={2} value={bugData.problemSummary} onChange={handleChange} name="problemSummary" />
+                <TextField select required id="reproducible" label="Reproducible" value={bugData.reproducible} onChange={handleChange} name="reproducible">
+                    {["true", "false"].map(option => (<MenuItem key={option} value={option}>{option}</MenuItem>))}
+                </TextField>
+                <TextField required id="detailedSummary" label="Problem Description" multiline rows={4} value={bugData.detailedSummary} onChange={handleChange} name="detailedSummary" />
+                <TextField id="suggestion" label="Suggested Fix" multiline rows={4} value={bugData.suggestion} onChange={handleChange} name="suggestion" />
+                <TextField select required id="reportedBy" label="Reported By" value={bugData.reportedBy} onChange={handleChange} name="reportedBy">
+                    {demoNames.map((name, index) => (<MenuItem key={index} value={name}>{name}</MenuItem>))}
+                </TextField>
+                <TextField required id="reportDate" label="Reported Date" type="date" value={bugData.reportDate} onChange={handleChange} name="reportDate" />
+                <div className="file-input-container">
+                    <input type="file" id="file" multiple onChange={handleFileChange} />
+                    <label htmlFor="file" className="file-input-label">Choose files (Max 3 files, 2MB each)</label>
+                </div>
                 {files.map((file, index) => (
                     <div key={index}>
-                        {file.name}
-                        <Button onClick={() => removeFile(index)} color="secondary">Remove</Button>
+                        {file.name} <Button onClick={() => removeFile(index)} color="secondary">Remove</Button>
                     </div>
                 ))}
-        <Button type="submit" variant="contained" color="primary">
-          Submit
-        </Button>
-      </form>
-    </div>
-  );
+                {warning && <p className="warning">{warning}</p>}
+                <Button type="submit" variant="contained" color="primary">Submit</Button>
+            </form>
+        </div>
+    );
 }
 
 export default CreateBug;
