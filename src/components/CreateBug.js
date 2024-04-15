@@ -14,6 +14,8 @@ function CreateBug() {
   const { auth } = useAuth();
   const { user: username, userType } = auth;  
   const [programList, setProgramList] = useState({});
+  const [files, setFiles] = useState([]);
+  const [warning, setWarning] = useState('');
   const [bugData, setBugData] = useState({
     buggyProgram: "",
     buggyProgramVersion: "",
@@ -59,10 +61,53 @@ function CreateBug() {
     }
   };
 
+  const handleFileChange = (event) => {
+    if (files.length >= 3) {
+        alert('You can only attach a maximum of three files.');
+        event.target.value = '';
+        return;
+    }
+
+    const selectedFiles = Array.from(event.target.files);
+    const newFiles = selectedFiles.filter(file => file.size <= 2097152); // Limit file size to 2MB
+    if (selectedFiles.some(file => file.size > 2097152)) {
+      alert('One or more files exceed the maximum size limit of 2MB and were not added.');
+      event.target.value = '';
+    }
+    const totalFiles = [...files, ...newFiles].slice(0, 3); // Limit to 3 files total
+    setFiles(totalFiles);
+  };
+
+  const removeFile = (index) => {
+    setFiles(current => current.filter((_, i) => i !== index));
+    setWarning('');
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const attachments = await Promise.all(files.map(async (file, index) => {
+      const reader = new FileReader();
+      return new Promise((resolve, reject) => {
+          reader.onload = () => {
+              const byteArray = new Uint8Array(reader.result);
+              const blob = new Blob([byteArray]);
+              console.log("Size of the blob in bytes:", blob.size);
+              const extension = file.name.split('.').pop();
+              resolve({
+                  attachmentId: `${index + 1}`,
+                  attachmentExt: extension, // Include the file extension
+                  attachmentData: Array.from(byteArray)
+              });
+          };
+          reader.onerror = reject;
+          reader.readAsArrayBuffer(file);
+      });
+    }));
+
+    const fullBugData = { ...bugData, attachments };
+
     try {
-      const response = await axios.post("http://localhost:8080/bugs/createBug", bugData);
+      const response = await axios.post("http://localhost:8080/bugs/createBug", fullBugData);
       console.log("Bug report submitted:", response.data);
       if (userType === 'DEVELOPER') {
         navigate('/DeveloperDashboard');
@@ -200,6 +245,16 @@ function CreateBug() {
             shrink: true,  // This ensures the label does not overlap with the placeholder text
           }}
         />
+        <div className="file-input-container">
+                    <input type="file" id="file" multiple onChange={handleFileChange} />
+                    <label htmlFor="file" className="file-input-label">Choose files (Max 3 files, 2MB each)</label>
+                </div>
+                {files.map((file, index) => (
+                    <div key={index}>
+                        {file.name} <Button onClick={() => removeFile(index)} color="secondary">Remove</Button>
+                    </div>
+                ))}
+                {warning && <p className="warning">{warning}</p>}
         <Button type="submit" variant="contained" color="primary">
           Submit
         </Button>

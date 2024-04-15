@@ -42,7 +42,7 @@ function App() {
           <Route path="/create-user" element={<CreateUser />} />
           <Route path="/manage-users" element={<ManageUser />} />
           <Route path="/edit-user/:username" element={<EditUser />} />
-          <Route path="/managerbugdetails/:bugId" element={<ManagerBugDetails />} />                  
+          <Route path="/managerbugdetails/:bugId" element={<ManagerBugDetails />} />               
         </Routes>
       </Router>
     </div>
