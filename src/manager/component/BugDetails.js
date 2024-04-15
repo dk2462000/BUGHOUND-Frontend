@@ -95,6 +95,7 @@ const ManagerBugDetails = () => {
     <Box sx={{ maxWidth: 800, mx: "auto", p: 3, bgcolor: 'background.paper', boxShadow: 3, borderRadius: 2 }}>
       <Typography variant="h5" gutterBottom>Edit Bug Details (ID: {bugId})</Typography>
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        
         <FormControl fullWidth>
           <InputLabel id="buggyProgram-label">Program</InputLabel>
           <Select
@@ -123,6 +124,36 @@ const ManagerBugDetails = () => {
             ))}
           </Select>
         </FormControl>
+        <FormControl fullWidth>
+            <InputLabel id="reportType-label">Report Type</InputLabel>
+            <Select
+              labelId="reportType-label"
+              name="reportType"
+              value={editDetails.reportType || ''}
+              label="Report Type"
+              onChange={handleInputChange}
+            >
+              <MenuItem value="CODING_ERROR">Coding Error</MenuItem>
+              <MenuItem value="DESIGN_ISSUE">Design Issue</MenuItem>
+              <MenuItem value="NEW_REQUIREMENT">New Requirement</MenuItem>
+              <MenuItem value="QUERY">Query</MenuItem>
+            </Select>
+          </FormControl>
+          <FormControl fullWidth>
+            <InputLabel id="severity-label">Severity</InputLabel>
+            <Select
+              labelId="severity-label"
+              name="severity"
+              value={editDetails.severity || ''}
+              label="Severity"
+              onChange={handleInputChange}
+            >
+              <MenuItem value="LOW">Low</MenuItem>
+              <MenuItem value="MEDIUM">Medium</MenuItem>
+              <MenuItem value="HIGH">High</MenuItem>
+              <MenuItem value="SERIOUS">Serious</MenuItem>
+            </Select>
+          </FormControl>
         <FormControl fullWidth>
           <InputLabel id="assignedTo-label">Assigned To</InputLabel>
           <Select
@@ -203,36 +234,8 @@ const ManagerBugDetails = () => {
               />
             )
           ))}
-          <FormControl fullWidth>
-            <InputLabel id="reportType-label">Report Type</InputLabel>
-            <Select
-              labelId="reportType-label"
-              name="reportType"
-              value={editDetails.reportType || ''}
-              label="Report Type"
-              onChange={handleInputChange}
-            >
-              <MenuItem value="CODING_ERROR">Coding Error</MenuItem>
-              <MenuItem value="DESIGN_ISSUE">Design Issue</MenuItem>
-              <MenuItem value="NEW_REQUIREMENT">New Requirement</MenuItem>
-              <MenuItem value="QUERY">Query</MenuItem>
-            </Select>
-          </FormControl>
-          <FormControl fullWidth>
-            <InputLabel id="severity-label">Severity</InputLabel>
-            <Select
-              labelId="severity-label"
-              name="severity"
-              value={editDetails.severity || ''}
-              label="Severity"
-              onChange={handleInputChange}
-            >
-              <MenuItem value="LOW">Low</MenuItem>
-              <MenuItem value="MEDIUM">Medium</MenuItem>
-              <MenuItem value="HIGH">High</MenuItem>
-              <MenuItem value="SERIOUS">Serious</MenuItem>
-            </Select>
-          </FormControl>
+
+         
           <Typography variant="h6" gutterBottom mt={2}>Comments</Typography>
           {editDetails.comments && editDetails.comments.map((comment, index) => (
             <Typography key={index} sx={{ bgcolor: 'background.paper', p: 2, borderRadius: 1 }}>

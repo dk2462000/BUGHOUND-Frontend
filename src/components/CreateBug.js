@@ -109,9 +109,12 @@ function CreateBug() {
           onChange={handleChange}
           name="reportType"
         >
-          <MenuItem value="Bug">Bug</MenuItem>
-          <MenuItem value="Feature_Request">Feature_Request</MenuItem>
-          <MenuItem value="CODING_ERROR">CODING_ERROR</MenuItem>
+          <MenuItem value="CODING_ERROR">CODING ERROR</MenuItem>
+          <MenuItem value="DESIGN_ISSUE">DESIGN ISSUE</MenuItem>
+          <MenuItem value="SUGGESTION">SUGGESTION</MenuItem>
+          <MenuItem value="DOCUMENTATION">DOCUMENTATION</MenuItem>
+          <MenuItem value="HARDWARE">HARDWARE</MenuItem>
+          <MenuItem value="QUERY">QUERY</MenuItem>
         </TextField>
         <TextField
           select
@@ -122,10 +125,9 @@ function CreateBug() {
           onChange={handleChange}
           name="severity"
         >
-          <MenuItem value="Low">Low</MenuItem>
-          <MenuItem value="Medium">Medium</MenuItem>
-          <MenuItem value="High">High</MenuItem>
-          <MenuItem value="Serious">Serious</MenuItem>
+          <MenuItem value="MINOR">MINOR</MenuItem>
+          <MenuItem value="SERIOUS">SERIOUS</MenuItem>
+          <MenuItem value="FATAL">FATAL</MenuItem>
         </TextField>
         <FormControlLabel
           control={<Checkbox checked={bugData.reproducible} onChange={handleChange} name="reproducible" />}
