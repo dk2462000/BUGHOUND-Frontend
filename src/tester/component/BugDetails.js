@@ -49,6 +49,28 @@ const TesterBugDetails = () => {
   const goToDashboard = () => {
     navigate('/TesterDashboard');
   };
+  const byteArrayToBlobUrl = (byteArray, extension = "txt") => {
+    const byteCharacters = atob(byteArray);
+    const byteNumbers = Array.from(byteCharacters, char => char.charCodeAt(0));
+    const byteArrayFinal = new Uint8Array(byteNumbers);
+    const blob = new Blob([byteArrayFinal], { type: getMimeType(extension) });
+    return URL.createObjectURL(blob);
+  };
+
+  const getMimeType = (extension) => {
+    if (!extension) {
+      return 'application/octet-stream'; // Default MIME type for unknown files
+    }
+    switch(extension.toLowerCase()) {
+      case 'pdf': return 'application/pdf';
+      case 'xlsx': return 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+      case 'txt': return 'text/plain';
+      case 'jpg': case 'jpeg': return 'image/jpeg';
+      case 'png': return 'image/png';
+      default: return 'application/octet-stream'; // Generic binary data MIME type
+    }
+  };
+
 
   if (!editDetails) return <Box display="flex" justifyContent="center" alignItems="center" height="100vh"><CircularProgress /></Box>;
 
@@ -96,6 +118,15 @@ const TesterBugDetails = () => {
           </TableBody>
         </Table>
       </DetailTableContainer>
+
+<Typography variant="h6" gutterBottom mt={2}>Attachments</Typography>
+        {editDetails.attachments && editDetails.attachments.map((attachment, index) => (
+          <div key={index} sx={{ bgcolor: 'background.paper', p: 2, borderRadius: 1 }}>
+            <a href={byteArrayToBlobUrl(attachment.attachment, attachment.extension)} download={`Attachment_${attachment.attachmentId}.${attachment.extension || 'txt'}`}>
+              Download Attachment {attachment.attachmentId}
+            </a>
+          </div>
+        ))}
       <Button onClick={goToDashboard} variant="contained" color="primary" sx={{ mt: 2 }}>
         Back to Dashboard
       </Button>

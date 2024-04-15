@@ -95,25 +95,47 @@ const ManagerBugDetails = () => {
     });
   };
 
+  const byteArrayToBlobUrl = (byteArray, extension = "txt") => {
+    const byteCharacters = atob(byteArray);
+    const byteNumbers = Array.from(byteCharacters, char => char.charCodeAt(0));
+    const byteArrayFinal = new Uint8Array(byteNumbers);
+    const blob = new Blob([byteArrayFinal], { type: getMimeType(extension) });
+    return URL.createObjectURL(blob);
+  };
+
+  const getMimeType = (extension) => {
+    if (!extension) {
+      return 'application/octet-stream'; // Default MIME type for unknown files
+    }
+    switch(extension.toLowerCase()) {
+      case 'pdf': return 'application/pdf';
+      case 'xlsx': return 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+      case 'txt': return 'text/plain';
+      case 'jpg': case 'jpeg': return 'image/jpeg';
+      case 'png': return 'image/png';
+      default: return 'application/octet-stream'; // Generic binary data MIME type
+    }
+  };
+
   return (
     <Box sx={{ maxWidth: 800, mx: "auto", p: 3, bgcolor: 'background.paper', boxShadow: 3, borderRadius: 2 }}>
       <Typography variant="h5" gutterBottom>Edit Bug Details (ID: {bugId})</Typography>
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
         
       <FormControl fullWidth>
-          <InputLabel id="buggyProgram-label">Program</InputLabel>
-          <Select
-            labelId="buggyProgram-label"
-            name="buggyProgram"
-            value={editDetails.buggyProgram || ''}
-            label="Program"
-            onChange={handleInputChange}
-          >
-            {programs.map((program, index) => (
-              <MenuItem key={index} value={program.program}>{program.program}</MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+  <InputLabel id="buggyProgram-label">Program</InputLabel>
+  <Select
+    labelId="buggyProgram-label"
+    name="buggyProgram"
+    value={editDetails.buggyProgram || ''}
+    label="Program"
+    onChange={handleInputChange}
+  >
+    {[...new Set(programs.map(p => p.program))].map((programName, index) => (
+      <MenuItem key={index} value={programName}>{programName}</MenuItem>
+    ))}
+  </Select>
+</FormControl>
         <FormControl fullWidth>
           <InputLabel id="buggyProgramVersion-label">Program Version</InputLabel>
           <Select
@@ -403,11 +425,13 @@ const ManagerBugDetails = () => {
           label="Treat As Deferred"
         />
 
-        <Typography variant="h6" gutterBottom mt={2}>Attachments</Typography>
+<Typography variant="h6" gutterBottom mt={2}>Attachments</Typography>
         {editDetails.attachments && editDetails.attachments.map((attachment, index) => (
-          <Typography key={index} sx={{ bgcolor: 'background.paper', p: 2, borderRadius: 1 }}>
-            Attachment ID: {attachment.attachmentId}
-          </Typography>
+          <div key={index} sx={{ bgcolor: 'background.paper', p: 2, borderRadius: 1 }}>
+            <a href={byteArrayToBlobUrl(attachment.attachment, attachment.extension)} download={`Attachment_${attachment.attachmentId}.${attachment.extension || 'txt'}`}>
+              Download Attachment {attachment.attachmentId}
+            </a>
+          </div>
         ))}
 
         <Button type="submit" variant="contained" color="primary" sx={{ mt: 2 }}>
