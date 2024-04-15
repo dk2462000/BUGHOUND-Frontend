@@ -1,99 +1,324 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import AppBar from '../AppBar';
+import Typography from '@mui/material/Typography';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import Paper from '@mui/material/Paper';
+import TextField from '@mui/material/TextField';
+import MenuItem from '@mui/material/MenuItem';
+import Button from '@mui/material/Button';
+import * as XLSX from 'xlsx';
 import { useAuth } from "../context/AuthProvider";
 
 const DeveloperDashboard = () => {
-  const { auth } = useAuth();
-  const { username } = auth;  
-  const [bugs, setBugs] = useState([]);
-  const [assignedbugs, setAssignedBugs] = useState([]);
   const navigate = useNavigate();
+  const { auth } = useAuth();
+  const { user: username } = auth;
+  const [reportedBugs, setReportedBugs] = useState([]);
+  const [assignedBugs, setAssignedBugs] = useState([]);
+  const [reportFilter, setReportFilter] = useState("");
+  const [reportSearchTerm, setReportSearchTerm] = useState("");
+  const [assignFilter, setAssignFilter] = useState("");
+  const [assignSearchTerm, setAssignSearchTerm] = useState("");
+
+  // Define some inline styles
+  const buttonStyle = {
+      margin: '10px',
+      padding: '10px 20px',
+      fontSize: '16px',
+      cursor: 'pointer',
+      backgroundColor: '#4CAF50', // Green background
+      color: 'white',
+      border: 'none',
+      borderRadius: '5px'
+  };
+
+  const enumFields = {
+      reportType: ['CODING_ERROR', 'DESIGN_ISSUE', 'SUGGESTION', 'DOCUMENTATION', 'HARDWARE', 'QUERY'],
+      severity: ['MINOR', 'SERIOUS', 'FATAL'],
+      status: ['OPEN', 'RESOLVED', 'CLOSED'],
+      priority: ['FIX_IMMEDIATELY', 'FIX_AS_SOON_AS_POSSIBLE', 'FIX_BEFORE_NEXT_MILESTONE', 'FIX_BEFORE_RELEASE', 'FIX_IF_POSSIBLE', 'OPTIONAL'],
+      resolution: ['PENDING', 'FIXED', 'CANNOT_BE_REPRODUCED', 'DEFERRED', 'AS_DESIGNED', 'WITHDRAWN_BY_REPORTER', 'NEED_MORE_INFO', 'DISAGREE_WITH_SUGGESTION', 'DUPLICATE']
+  };
+
+  const fieldDisplayNameMapping = {
+      bug_id: 'Bug ID',
+      buggyProgram: 'Program',
+      reportType: 'Report Type',
+      severity: 'Severity',
+      reportedBy: 'Reported By',
+      reportDate: 'Report Date',
+      functionalArea: 'Functional Area',
+      assignedTo: 'Assigned To',
+      status: 'Status',
+      priority: 'Priority',
+      resolution: 'Resolution',
+      resolvedBy: 'Resolved By'
+  };
 
   useEffect(() => {
-    if (username) {
-      fetch(`http://localhost:8080/bugs/summary/reportedBy/${username}`)
-        .then(response => response.json())
-        .then(data => {
-          if (Array.isArray(data)) setBugs(data);
-          else setBugs([]); // Ensure data is always an array
-        })
-        .catch(error => {
-          console.error("Error fetching reported bugs: ", error);
-          setBugs([]); // Set to empty array on error
-        });
+    const fetchData = async () => {
+        if (username) {
+            const reportedResponse = await axios(`http://localhost:8080/bugs/reportedBy/${username}`);
+            setReportedBugs(reportedResponse.data);
+            const assignedResponse = await axios(`http://localhost:8080/bugs/assignedTo/${username}`);
+            setAssignedBugs(assignedResponse.data);
+        }
+    };
 
-      fetch(`http://localhost:8080/bugs/summary/assignedTo/${username}`)
-        .then(response => response.json())
-        .then(data => {
-          if (Array.isArray(data)) setAssignedBugs(data);
-          else setAssignedBugs([]); // Ensure data is always an array
-        })
-        .catch(error => {
-          console.error("Error fetching assigned bugs: ", error);
-          setAssignedBugs([]); // Set to empty array on error
-        });
-    }
-  }, [username]); // Added username as a dependency
+    fetchData();
+    }, [username]); 
 
-  const navigateToCreateBug = () => {
-    navigate("/createbug");
-  };
+    const handleReportFilterChange = (event) => {
+        setReportFilter(event.target.value);
+        setReportSearchTerm("");
+    };
 
-  const navigateToDeveloperBugDetails = (bugId) => {
-    navigate(`/developerbugdetails/${bugId}`);
-  };
+    const handleAssignFilterChange = (event) => {
+        setAssignFilter(event.target.value);
+        setAssignSearchTerm("");
+    };
+
+    const handleReportSearchChange = (event) => {
+        setReportSearchTerm(event.target.value);
+    };
+
+    const handleAssignSearchChange = (event) => {
+        setAssignSearchTerm(event.target.value);
+    };
+
+    const filteredReportedBugs = reportFilter ? reportedBugs.filter(bug => bug[reportFilter]?.toString().toLowerCase().includes(reportSearchTerm.toLowerCase())) : reportedBugs;
+    const filteredAssignedBugs = assignFilter ? assignedBugs.filter(bug => bug[assignFilter]?.toString().toLowerCase().includes(assignSearchTerm.toLowerCase())) : assignedBugs;
+
+    const exportToExcel = (data, fileName) => {
+        const transformedData = data.map(bug => ({
+            ...bug,
+            reportDate: bug.reportDate ? new Date(bug.reportDate).toLocaleDateString() : '-',
+            comments: bug.comments?.map(comment => `Time: ${comment.commentTime}, Comment: ${comment.comment}`).join('; '),
+            attachments: bug.attachments?.map(attachment => `ID: ${attachment.attachmentId}, Data: ${attachment.attachment}`).join('; ')
+        }));
+        const worksheet = XLSX.utils.json_to_sheet(transformedData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Bugs");
+        XLSX.writeFile(workbook, `${fileName}.xlsx`);
+    };
+
+    const viewBugDetails = (bugId) => {
+        navigate(`/developerbugdetails/${bugId}`);
+    };
 
   return (
-    <div>
-      <button onClick={navigateToCreateBug}>Create Bug</button>
-      <h2>Reported Bugs</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Bug ID</th>
-            <th>Buggy Program</th>
-            <th>Problem Summary</th>
-          </tr>
-        </thead>
-        <tbody>
-          {bugs.length > 0 ? bugs.map((bug) => (
-            <tr key={bug.bugId}>
-              <td>
-                <button onClick={() => navigateToDeveloperBugDetails(bug.bugId)} style={{ border: 'none', background: 'none', padding: 0, color: 'blue', textDecoration: 'underline', cursor: 'pointer' }}>
-                  {bug.bugId}
-                </button>
-              </td>
-              <td>{bug.buggyProgram}</td>
-              <td>{bug.problemSummary}</td>
-            </tr>
-          )) : <tr><td colSpan="3">No reported bugs found.</td></tr>}
-        </tbody>
-      </table>
-
-      <h2>Assigned Bugs</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Bug ID</th>
-            <th>Buggy Program</th>
-            <th>Problem Summary</th>
-          </tr>
-        </thead>
-        <tbody>
-          {assignedbugs.length > 0 ? assignedbugs.map((bug) => (
-            <tr key={bug.bugId}>
-              <td>
-                <button onClick={() => navigateToDeveloperBugDetails(bug.bugId)} style={{ border: 'none', background: 'none', padding: 0, color: 'blue', textDecoration: 'underline', cursor: 'pointer' }}>
-                  {bug.bugId}
-                </button>
-              </td>
-              <td>{bug.buggyProgram}</td>
-              <td>{bug.problemSummary}</td>
-            </tr>
-            )) : <tr><td colSpan="3">No assigned bugs found.</td></tr>}
-        </tbody>
-      </table>
-    </div>
+      <div>
+          <AppBar title="Developer Dashboard" />
+          <TableContainer component={Paper} style={{ maxWidth: 650, margin: '50px auto', padding: '20px' }}>
+              <Typography style={{ fontFamily: '"Segoe UI", sans-serif', flexGrow: 2 }} variant="h4" textAlign="auto" component="div" sx={{ flexGrow: 2 }}>
+              Developer Operations
+              </Typography>
+              <div style={{ height: '2px', backgroundColor: 'black', margin: '20px 0', width: '100%' }}></div>
+              <Table aria-label="Dashboard Options">
+                  <TableBody>
+                      <TableRow>
+                          <TableCell style={{ fontWeight: "bold" }} component="th" scope="row">
+                              Report a New Bug
+                          </TableCell>
+                          <TableCell align="auto">
+                              <Button variant="contained" color="primary" onClick={() => navigate('/createbug')}>
+                                  Report Bug
+                              </Button>
+                          </TableCell>
+                      </TableRow>                      
+                  </TableBody>
+              </Table>
+          </TableContainer>
+          <div style={{ height: '2px', backgroundColor: 'black', margin: '20px 0', width: '100%' }}></div>
+          <Typography style={{ fontFamily: '"Segoe UI", sans-serif', flexGrow: 2 }} variant="h4" textAlign="auto" component="div">
+          Reported Bugs
+          </Typography>                                   
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
+            <TableContainer component={Paper} style={{ margin: '20px', maxWidth: '95%', maxHeight: 500, border: "3px solid rgb(0, 0, 0)"}}>
+                <div style={{ display: 'flex', justifyContent: 'flex-start', padding: '10px' }}>
+                    <TextField
+                    select
+                    label="Filter by"
+                    value={reportFilter}
+                    onChange={handleReportFilterChange}
+                    helperText="Select the column to filter"
+                    variant="outlined"
+                    style={{ margin: '10px', width: '200px' }}
+                    >
+                    <MenuItem value="">None</MenuItem>
+                    {Object.entries(fieldDisplayNameMapping).map(([key, value]) => (
+                        <MenuItem key={key} value={key}>{value}</MenuItem>
+                    ))}
+                    </TextField>
+                    {reportFilter === 'reportDate' ? (
+                    <TextField
+                    type="text"
+                    label="Enter Date (YYYY-MM-DD)"
+                    value={reportSearchTerm}
+                    onChange={handleReportSearchChange}
+                    variant="outlined"
+                    style={{ margin: '10px', width: '200px' }}
+                    placeholder="YYYY-MM-DD"
+                    helperText="Use date format: YYYY-MM-DD"
+                    />
+                    ) : reportFilter && enumFields[reportFilter] ? (
+                    <TextField
+                    select
+                    label="Search"
+                    value={reportSearchTerm}
+                    onChange={handleReportSearchChange}
+                    variant="outlined"
+                    style={{ margin: '10px', width: '200px' }}
+                    >
+                    <MenuItem value="">-</MenuItem>
+                    {enumFields[reportFilter].map(option => (
+                        <MenuItem key={option} value={option}>{option}</MenuItem>
+                    ))}
+                    </TextField>
+                    ) : (
+                    <TextField
+                    label="Search"
+                    value={reportSearchTerm}
+                    onChange={handleReportSearchChange}
+                    variant="outlined"
+                    style={{ margin: '10px', width: '200px' }}
+                    disabled={!reportFilter}
+                    />
+                    )}
+                </div>
+                <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                    <TableHead style={{background: "#4fade4", fontWeight:"bold"}}>
+                        <TableRow>
+                            {['Bug ID', 'Program', 'Type', 'Severity', 'Reported By', 'Date', 'Area', 'Assigned To', 'Status', 'Priority', 'Resolution', 'Resolved By'].map(header => (
+                                <TableCell key={header}>{header}</TableCell>
+                            ))}
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                    {filteredReportedBugs.map((bug) => (
+                        <TableRow key={bug.bug_id}>
+                        <TableCell component="th" scope="row">
+                            <a href="#" onClick={(e) => {e.preventDefault(); viewBugDetails(bug.bug_id);}}>{bug.bug_id}</a>
+                        </TableCell>
+                        <TableCell>{bug.buggyProgram || '-'}</TableCell>
+                        <TableCell>{bug.reportType || '-'}</TableCell>
+                        <TableCell>{bug.severity || '-'}</TableCell>
+                        <TableCell>{bug.reportedBy || '-'}</TableCell>
+                        <TableCell>{bug.reportDate ? bug.reportDate.split('T')[0] : '-'}</TableCell>
+                        <TableCell>{bug.functionalArea || '-'}</TableCell>
+                        <TableCell>{bug.assignedTo || '-'}</TableCell>
+                        <TableCell>{bug.status || '-'}</TableCell>
+                        <TableCell>{bug.priority || '-'}</TableCell>
+                        <TableCell>{bug.resolution || '-'}</TableCell>
+                        <TableCell>{bug.resolvedBy || '-'}</TableCell>
+                        </TableRow>
+                    ))}
+                    </TableBody>
+                </Table>
+            </TableContainer>
+            </div>
+          <button onClick={() => exportToExcel(filteredReportedBugs, 'Bug_Report')} style={buttonStyle}>
+          Export to Excel
+          </button>
+          <div style={{ height: '2px', backgroundColor: 'black', margin: '20px 0', width: '100%' }}></div>
+          <Typography style={{ fontFamily: '"Segoe UI", sans-serif', flexGrow: 2 }} variant="h4" textAlign="auto" component="div">
+          Assigned Bugs
+          </Typography>                                   
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
+            <TableContainer component={Paper} style={{ margin: '20px', maxWidth: '95%', maxHeight: 500, border: "3px solid rgb(0, 0, 0)"}}>
+                <div style={{ display: 'flex', justifyContent: 'flex-start', padding: '10px' }}>
+                    <TextField
+                    select
+                    label="Filter by"
+                    value={assignFilter}
+                    onChange={handleAssignFilterChange}
+                    helperText="Select the column to filter"
+                    variant="outlined"
+                    style={{ margin: '10px', width: '200px' }}
+                    >
+                    <MenuItem value="">None</MenuItem>
+                    {Object.entries(fieldDisplayNameMapping).map(([key, value]) => (
+                        <MenuItem key={key} value={key}>{value}</MenuItem>
+                    ))}
+                    </TextField>
+                    {assignFilter === 'reportDate' ? (
+                    <TextField
+                    type="text"
+                    label="Enter Date (YYYY-MM-DD)"
+                    value={assignSearchTerm}
+                    onChange={handleAssignSearchChange}
+                    variant="outlined"
+                    style={{ margin: '10px', width: '200px' }}
+                    placeholder="YYYY-MM-DD"
+                    helperText="Use date format: YYYY-MM-DD"
+                    />
+                    ) : assignFilter && enumFields[assignFilter] ? (
+                    <TextField
+                    select
+                    label="Search"
+                    value={assignSearchTerm}
+                    onChange={handleAssignSearchChange}
+                    variant="outlined"
+                    style={{ margin: '10px', width: '200px' }}
+                    >
+                    <MenuItem value="">-</MenuItem>
+                    {enumFields[assignFilter].map(option => (
+                        <MenuItem key={option} value={option}>{option}</MenuItem>
+                    ))}
+                    </TextField>
+                    ) : (
+                    <TextField
+                    label="Search"
+                    value={assignSearchTerm}
+                    onChange={handleAssignSearchChange}
+                    variant="outlined"
+                    style={{ margin: '10px', width: '200px' }}
+                    disabled={!assignFilter}
+                    />
+                    )}
+                </div>
+                <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                    <TableHead style={{background: "#4fade4", fontWeight:"bold"}}>
+                        <TableRow>
+                            {['Bug ID', 'Program', 'Type', 'Severity', 'Reported By', 'Date', 'Area', 'Assigned To', 'Status', 'Priority', 'Resolution', 'Resolved By'].map(header => (
+                                <TableCell key={header}>{header}</TableCell>
+                            ))}
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                    {filteredAssignedBugs.map((bug) => (
+                        <TableRow key={bug.bug_id}>
+                        <TableCell component="th" scope="row">
+                            <a href="#" onClick={(e) => {e.preventDefault(); viewBugDetails(bug.bug_id);}}>{bug.bug_id}</a>
+                        </TableCell>
+                        <TableCell>{bug.buggyProgram || '-'}</TableCell>
+                        <TableCell>{bug.reportType || '-'}</TableCell>
+                        <TableCell>{bug.severity || '-'}</TableCell>
+                        <TableCell>{bug.reportedBy || '-'}</TableCell>
+                        <TableCell>{bug.reportDate ? bug.reportDate.split('T')[0] : '-'}</TableCell>
+                        <TableCell>{bug.functionalArea || '-'}</TableCell>
+                        <TableCell>{bug.assignedTo || '-'}</TableCell>
+                        <TableCell>{bug.status || '-'}</TableCell>
+                        <TableCell>{bug.priority || '-'}</TableCell>
+                        <TableCell>{bug.resolution || '-'}</TableCell>
+                        <TableCell>{bug.resolvedBy || '-'}</TableCell>
+                        </TableRow>
+                    ))}
+                    </TableBody>
+                </Table>
+            </TableContainer>
+            </div>
+          <button onClick={() => exportToExcel(filteredAssignedBugs, 'Bug_Report')} style={buttonStyle}>
+          Export to Excel
+          </button>
+      </div>
   );
 };
 

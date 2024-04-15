@@ -1,12 +1,25 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import AppBar from './AppBar';
+import AppBar from '../AppBar';
+import axios from 'axios';
+import Typography from '@mui/material/Typography';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import Paper from '@mui/material/Paper';
+import TextField from '@mui/material/TextField';
+import MenuItem from '@mui/material/MenuItem';
+import Button from '@mui/material/Button';
+import * as XLSX from 'xlsx';
 
 const ManagerDashboard = () => {
     const navigate = useNavigate();
-
-    // State to store the list of bugs
-    const [bugSummaries, setBugSummaries] = useState([]);
+    const [bugs, setBugs] = useState([]);
+    const [filter, setFilter] = useState("");
+    const [searchTerm, setSearchTerm] = useState("");
 
     // Define some inline styles
     const buttonStyle = {
@@ -20,75 +33,214 @@ const ManagerDashboard = () => {
         borderRadius: '5px'
     };
 
-    const dashboardStyle = {
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        padding: '20px'
+    const enumFields = {
+        reportType: ['CODING_ERROR', 'DESIGN_ISSUE', 'SUGGESTION', 'DOCUMENTATION', 'HARDWARE', 'QUERY'],
+        severity: ['MINOR', 'SERIOUS', 'FATAL'],
+        status: ['OPEN', 'RESOLVED', 'CLOSED'],
+        priority: ['FIX_IMMEDIATELY', 'FIX_AS_SOON_AS_POSSIBLE', 'FIX_BEFORE_NEXT_MILESTONE', 'FIX_BEFORE_RELEASE', 'FIX_IF_POSSIBLE', 'OPTIONAL'],
+        resolution: ['PENDING', 'FIXED', 'CANNOT_BE_REPRODUCED', 'DEFERRED', 'AS_DESIGNED', 'WITHDRAWN_BY_REPORTER', 'NEED_MORE_INFO', 'DISAGREE_WITH_SUGGESTION', 'DUPLICATE']
     };
 
-    const tableStyle = {
-        margin: '20px',
-        borderCollapse: 'collapse',
-        width: '80%'
+    const fieldDisplayNameMapping = {
+        bug_id: 'Bug ID',
+        buggyProgram: 'Program',
+        reportType: 'Report Type',
+        severity: 'Severity',
+        reportedBy: 'Reported By',
+        reportDate: 'Report Date',
+        functionalArea: 'Functional Area',
+        assignedTo: 'Assigned To',
+        status: 'Status',
+        priority: 'Priority',
+        resolution: 'Resolution',
+        resolvedBy: 'Resolved By'
     };
 
-    const thStyle = {
-        border: '1px solid #ddd',
-        padding: '8px',
-        textAlign: 'left',
-        backgroundColor: '#f2f2f2'
-    };
-
-    const tdStyle = {
-        border: '1px solid #ddd',
-        padding: '8px'
+    const exportToExcel = (apiData, fileName) => {
+        const transformedData = apiData.map(data => {
+            return {
+                ...data,
+                comments: data.comments.map(comment => `Time: ${comment.commentTime}, Comment: ${comment.comment}`).join('; '),
+                attachments: data.attachments.map(attachment => `ID: ${attachment.attachmentId}, Data: ${attachment.attachment}`).join('; ')
+            };
+        });
+        const worksheet = XLSX.utils.json_to_sheet(transformedData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Bugs");    
+        // Download
+        XLSX.writeFile(workbook, `${fileName}.xlsx`);
     };
 
     useEffect(() => {
-        fetch('http://localhost:8080/bugs/summaries')
-            .then(response => response.json())
-            .then(data => setBugSummaries(data))
-            .catch(error => console.error('Error fetching bug summaries:', error));
+        const fetchData = async () => {
+            const result = await axios('http://localhost:8080/bugs');
+            setBugs(result.data);
+        };
+        fetchData();
     }, []);
 
     const viewBugDetails = (bugId) => {
         navigate(`/managerbugdetails/${bugId}`);
     };
 
+    const handleFilterChange = (event) => {
+        setFilter(event.target.value);
+        setSearchTerm(""); // Reset search term when changing filter
+    };
+
+    const handleSearchChange = (event) => {
+        setSearchTerm(event.target.value);
+    };
+
+    const filteredBugs = filter ? bugs.filter(bug => {
+        const value = bug[filter];
+        return value ? value.toString().toLowerCase().includes(searchTerm.toLowerCase()) : false;
+    }) : bugs;
+
     return (
         <div>
             <AppBar title="Manager Dashboard" />
-            <div style={dashboardStyle}>
-                <button style={buttonStyle} onClick={() => navigate('/createbug')}>Create Bug</button>
-                <button style={buttonStyle} onClick={() => navigate('/manage-program')}>Manage Program</button>
-                <button style={buttonStyle} onClick={() => navigate('/manage-function')}>Manage Function</button>
-                <button style={buttonStyle} onClick={() => navigate('/manage-user')}>User Management</button>
-                <table style={tableStyle}>
-                    <thead>
-                        <tr>
-                            <th style={thStyle}>Bug ID</th>
-                            <th style={thStyle}>Buggy Program</th>
-                            <th style={thStyle}>Version</th>
-                            <th style={thStyle}>Problem Summary</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {bugSummaries.map(bug => (
-                            <tr key={bug.bugId}>
-                                <td style={tdStyle} onClick={() => viewBugDetails(bug.bugId)}>
-                                    <a style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline' }}>
-                                        {bug.bugId}
-                                    </a>
-                                </td>
-                                <td style={tdStyle}>{bug.buggyProgram}</td>
-                                <td style={tdStyle}>{bug.buggyProgramVersion}</td>
-                                <td style={tdStyle}>{bug.problemSummary}</td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
+            <TableContainer component={Paper} style={{ maxWidth: 650, margin: '50px auto', padding: '20px' }}>
+                <Typography style={{ fontFamily: '"Segoe UI", sans-serif', flexGrow: 2 }} variant="h4" textAlign="auto" component="div" sx={{ flexGrow: 2 }}>
+                Manager Operations
+                </Typography>
+                <div style={{ height: '2px', backgroundColor: 'black', margin: '20px 0', width: '100%' }}></div>
+                <Table aria-label="Dashboard Options">
+                    <TableBody>
+                        <TableRow>
+                            <TableCell style={{ fontWeight: "bold" }} component="th" scope="row">
+                                Report a New Bug
+                            </TableCell>
+                            <TableCell align="auto">
+                                <Button variant="contained" color="primary" onClick={() => navigate('/createbug')}>
+                                    Report Bug
+                                </Button>
+                            </TableCell>
+                        </TableRow>
+                        <TableRow>
+                            <TableCell style={{ fontWeight: "bold" }} component="th" scope="row">
+                                Add/Manage Programs
+                            </TableCell>
+                            <TableCell align="auto">
+                                <Button variant="contained" color="primary" onClick={() => navigate('/manage-program')}>
+                                    Manage Programs
+                                </Button>
+                            </TableCell>
+                        </TableRow>
+                        <TableRow>
+                            <TableCell style={{ fontWeight: "bold" }} component="th" scope="row">
+                                Add/Manage Programs
+                            </TableCell>
+                            <TableCell align="auto">
+                                <Button variant="contained" color="primary" onClick={() => navigate('/manage-function')}>
+                                    Manage Functions
+                                </Button>
+                            </TableCell>
+                        </TableRow>
+                        <TableRow>
+                            <TableCell style={{ fontWeight: "bold" }} component="th" scope="row">
+                                Add/Manage Users
+                            </TableCell>
+                            <TableCell align="auto">
+                                <Button variant="contained" color="primary" onClick={() => navigate('/manage-user')}>
+                                    Manage Users
+                                </Button>
+                            </TableCell>
+                        </TableRow>
+                    </TableBody>
+                </Table>
+            </TableContainer>
+            <div style={{ height: '2px', backgroundColor: 'black', margin: '20px 0', width: '100%' }}></div>
+            <Typography style={{ fontFamily: '"Segoe UI", sans-serif', flexGrow: 2 }} variant="h4" textAlign="auto" component="div">
+            Bugs Report
+            </Typography>                                   
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
+            <TableContainer component={Paper} style={{ margin: '20px', maxWidth: '95%', maxHeight: 500, border: "3px solid rgb(0, 0, 0)"}}>
+            <div style={{ display: 'flex', justifyContent: 'flex-start', padding: '10px' }}>
+                <TextField
+                    select
+                    label="Filter by"
+                    value={filter}
+                    onChange={handleFilterChange}
+                    helperText="Select the column to filter"
+                    variant="outlined"
+                    style={{ margin: '10px', width: '200px' }}
+                >
+                    <MenuItem value="">None</MenuItem>
+                    {Object.entries(fieldDisplayNameMapping).map(([key, value]) => (
+                    <MenuItem key={key} value={key}>{value}</MenuItem>
+                    ))}
+                </TextField>
+                {filter === 'reportDate' ? (
+                    <TextField
+                    type="text"
+                    label="Enter Date (YYYY-MM-DD)"
+                    value={searchTerm}
+                    onChange={handleSearchChange}
+                    variant="outlined"
+                    style={{ margin: '10px', width: '200px' }}
+                    placeholder="YYYY-MM-DD"
+                    helperText="Use date format: YYYY-MM-DD"
+                  />
+                ) : filter && enumFields[filter] ? (
+                    <TextField
+                    select
+                    label="Search"
+                    value={searchTerm}
+                    onChange={handleSearchChange}
+                    variant="outlined"
+                    style={{ margin: '10px', width: '200px' }}
+                    >
+                    <MenuItem value="">-</MenuItem>
+                    {enumFields[filter].map(option => (
+                        <MenuItem key={option} value={option}>{option}</MenuItem>
+                    ))}
+                    </TextField>
+                ) : (
+                    <TextField
+                    label="Search"
+                    value={searchTerm}
+                    onChange={handleSearchChange}
+                    variant="outlined"
+                    style={{ margin: '10px', width: '200px' }}
+                    disabled={!filter}
+                    />
+                )}
+                </div>
+                <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                    <TableHead style={{background: "#4fade4", fontWeight:"bold"}}>
+                        <TableRow>
+                            {['Bug ID', 'Program', 'Type', 'Severity', 'Reported By', 'Date', 'Area', 'Assigned To', 'Status', 'Priority', 'Resolution', 'Resolved By'].map(header => (
+                                <TableCell key={header}>{header}</TableCell>
+                            ))}
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                    {filteredBugs.map((bug) => (
+                        <TableRow key={bug.bug_id}>
+                        <TableCell component="th" scope="row">
+                            <a href="#" onClick={(e) => {e.preventDefault(); viewBugDetails(bug.bug_id);}}>{bug.bug_id}</a>
+                        </TableCell>
+                        <TableCell>{bug.buggyProgram || '-'}</TableCell>
+                        <TableCell>{bug.reportType || '-'}</TableCell>
+                        <TableCell>{bug.severity || '-'}</TableCell>
+                        <TableCell>{bug.reportedBy || '-'}</TableCell>
+                        <TableCell>{bug.reportDate ? bug.reportDate.split('T')[0] : '-'}</TableCell>
+                        <TableCell>{bug.functionalArea || '-'}</TableCell>
+                        <TableCell>{bug.assignedTo || '-'}</TableCell>
+                        <TableCell>{bug.status || '-'}</TableCell>
+                        <TableCell>{bug.priority || '-'}</TableCell>
+                        <TableCell>{bug.resolution || '-'}</TableCell>
+                        <TableCell>{bug.resolvedBy || '-'}</TableCell>
+                        </TableRow>
+                    ))}
+                    </TableBody>
+                </Table>
+            </TableContainer>
             </div>
+            <button onClick={() => exportToExcel(filteredBugs, 'Bug_Report')} style={buttonStyle}>
+            Export to Excel
+            </button>
         </div>
     );
 };
