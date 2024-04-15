@@ -5,15 +5,15 @@ import TextField from "@mui/material/TextField";
 import MenuItem from "@mui/material/MenuItem";
 import Checkbox from "@mui/material/Checkbox";
 import FormControlLabel from "@mui/material/FormControlLabel";
-import "./CreateBug.css"; // Import your CSS file for additional styling
+import "./CreateBug.css";
 import { useAuth } from '../context/AuthProvider';
 import { useNavigate } from 'react-router-dom';
 
 function CreateBug() {
   const navigate = useNavigate();
   const { auth } = useAuth();
-  const { user:username, userType } = auth;  
-  const [programs, setPrograms] = useState([]);
+  const { user: username, userType } = auth;  
+  const [programList, setProgramList] = useState({});
   const [bugData, setBugData] = useState({
     buggyProgram: "",
     buggyProgramVersion: "",
@@ -27,12 +27,19 @@ function CreateBug() {
     reportedBy: username,
     reportDate: "",
   });
-
-  // Fetch programs data from the API
+  
   useEffect(() => {
     axios.get("http://localhost:8080/programs")
       .then(response => {
-        setPrograms(response.data);
+        const fetchedPrograms = response.data;
+        const groupedPrograms = {};
+        fetchedPrograms.forEach((program) => {
+          if (!groupedPrograms[program.program]) {
+            groupedPrograms[program.program] = [];
+          }
+          groupedPrograms[program.program].push(program.version);
+        });
+        setProgramList(groupedPrograms);
       })
       .catch(error => {
         console.error("Error fetching programs:", error);
@@ -41,7 +48,15 @@ function CreateBug() {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setBugData({ ...bugData, [name]: type === 'checkbox' ? checked : value });
+    if (name === "buggyProgram") {
+      setBugData({
+        ...bugData,
+        buggyProgram: value,
+        buggyProgramVersion: '',  // Reset version when program changes
+      });
+    } else {
+      setBugData({ ...bugData, [name]: type === 'checkbox' ? checked : value });
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -51,16 +66,15 @@ function CreateBug() {
       console.log("Bug report submitted:", response.data);
       if (userType === 'DEVELOPER') {
         navigate('/DeveloperDashboard');
-    } else if (userType === 'TESTER') {
+      } else if (userType === 'TESTER') {
         navigate('/TesterDashboard');
-    } else if (userType === 'MANAGER') {
+      } else if (userType === 'MANAGER') {
         navigate('/ManagerDashboard');
-    } else {
+      } else {
         console.log('Role not recognized or user does not have a specific dashboard');
         // Optionally navigate to a default or error page
         // navigate('/default');
-    }
-      navigate("/ManagerDashboard");
+      }
     } catch (error) {
       console.error("Error submitting bug report:", error);
     }
@@ -79,9 +93,9 @@ function CreateBug() {
           onChange={handleChange}
           name="buggyProgram"
         >
-          {programs.map((option, index) => (
-            <MenuItem key={index} value={option.program}>
-              {option.program}
+          {Object.keys(programList).map((program, index) => (
+            <MenuItem key={index} value={program}>
+              {program}
             </MenuItem>
           ))}
         </TextField>
@@ -93,10 +107,11 @@ function CreateBug() {
           value={bugData.buggyProgramVersion}
           onChange={handleChange}
           name="buggyProgramVersion"
+          disabled={!bugData.buggyProgram}
         >
-          {programs.filter(p => p.program === bugData.buggyProgram).map((option, index) => (
-            <MenuItem key={index} value={option.version}>
-              {option.version}
+          {bugData.buggyProgram && programList[bugData.buggyProgram].map((version, index) => (
+            <MenuItem key={index} value={version}>
+              {version}
             </MenuItem>
           ))}
         </TextField>
