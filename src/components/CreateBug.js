@@ -12,7 +12,7 @@ import { useNavigate } from 'react-router-dom';
 function CreateBug() {
   const navigate = useNavigate();
   const { auth } = useAuth();
-  const { username } = auth;  
+  const { user:username, userType } = auth;  
   const [programs, setPrograms] = useState([]);
   const [bugData, setBugData] = useState({
     buggyProgram: "",
@@ -49,7 +49,18 @@ function CreateBug() {
     try {
       const response = await axios.post("http://localhost:8080/bugs/createBug", bugData);
       console.log("Bug report submitted:", response.data);
-      navigate("/DeveloperDashboard");
+      if (userType === 'DEVELOPER') {
+        navigate('/DeveloperDashboard');
+    } else if (userType === 'TESTER') {
+        navigate('/TesterDashboard');
+    } else if (userType === 'MANAGER') {
+        navigate('/ManagerDashboard');
+    } else {
+        console.log('Role not recognized or user does not have a specific dashboard');
+        // Optionally navigate to a default or error page
+        // navigate('/default');
+    }
+      navigate("/ManagerDashboard");
     } catch (error) {
       console.error("Error submitting bug report:", error);
     }
