@@ -37,7 +37,7 @@ const DetailTableContainer = styled(TableContainer)({
   boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
 });
 
-const TesterBugDetails = () => {
+const DeveloperViewBugs = () => {
   const { bugId } = useParams();
   const [editDetails, setEditDetails] = useState({});
   const navigate = useNavigate();
@@ -54,7 +54,7 @@ const TesterBugDetails = () => {
   }, [bugId]);
 
   const goToDashboard = () => {
-    navigate("/TesterDashboard");
+    navigate("/DeveloperDashBoard");
   };
 
   useEffect(() => {
@@ -132,16 +132,7 @@ const TesterBugDetails = () => {
 
   return (
     <div>
-      <AppBar title="Edit Bugs" />
-      <Button
-        onClick={goToDashboard}
-        variant="contained"
-        color="primary"
-        sx={{ mt: 2 }}
-        style={{ margin: "20px" }}
-      >
-        Back to Dashboard
-      </Button>
+      <AppBar title="Bug Details" />
       <Box
         sx={{
           maxWidth: 800,
@@ -152,6 +143,15 @@ const TesterBugDetails = () => {
           borderRadius: 2,
         }}
       >
+        <Button
+          onClick={goToDashboard}
+          variant="contained"
+          color="primary"
+          sx={{ mt: 2 }}
+          style={{ margin: "20px" }}
+        >
+          Back to Dashboard
+        </Button>
         <Typography variant="h5" gutterBottom>
           View Bug Details (ID: {bugId})
         </Typography>
@@ -227,4 +227,4 @@ const TesterBugDetails = () => {
   );
 };
 
-export default TesterBugDetails;
+export default DeveloperViewBugs;

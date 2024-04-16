@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import AppBar from '../AppBar';
-import AddProgram from './AddProgram';
-import DisplayProgram from './DisplayProgram';
+import React, { useEffect, useState } from "react";
+import AppBar from "../AppBar";
+import AddProgram from "./AddProgram";
+import DisplayProgram from "./DisplayProgram";
 import { useNavigate } from "react-router-dom";
 
 function ManageProgram() {
@@ -10,8 +10,8 @@ function ManageProgram() {
 
   const fetchPrograms = () => {
     fetch("http://localhost:8080/programs")
-      .then(res => res.json())
-      .then(result => {
+      .then((res) => res.json())
+      .then((result) => {
         const transformedData = result.map((item, index) => ({
           id: index,
           name: item.program,
@@ -19,7 +19,7 @@ function ManageProgram() {
         }));
         setProgramList(transformedData);
       })
-      .catch(e => console.log(e));
+      .catch((e) => console.log(e));
   };
 
   useEffect(() => {
@@ -27,18 +27,24 @@ function ManageProgram() {
   }, []);
 
   const handleBack = () => {
-    navigate('/ManagerDashboard', { replace: true }); // Navigates back to Manage Users
+    navigate("/ManagerDashboard", { replace: true }); // Navigates back to Manage Users
   };
 
   return (
     <div>
-      <AppBar title={"Manage Programs"}/>
-      <button style={{marginLeft: "20px"}} type="button" className="btn-submit" onClick={handleBack}>Back</button>
-      <AddProgram onAddProgram={fetchPrograms}/>
+      <AppBar title={"Manage Programs"} />
+      <button
+        style={{ marginLeft: "20px" }}
+        type="button"
+        className="btn-submit"
+        onClick={handleBack}
+      >
+        Back
+      </button>
+      <AddProgram onAddProgram={fetchPrograms} />
       <DisplayProgram programList={programList} fetchPrograms={fetchPrograms} />
     </div>
   );
 }
 
 export default ManageProgram;
-

@@ -13,7 +13,6 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 
 function UpdateBug() {
-
   function handleTreatedAsDeferredChange(e) {
     // Handle change for treatedAsDeferred
   }
@@ -109,10 +108,7 @@ function UpdateBug() {
             </div>
             {/* Other form elements */}
             <div className="checkbox">
-              <input
-                type="checkbox"
-                lable="Treated as Deferred"
-              />
+              <input type="checkbox" lable="Treated as Deferred" />
               <span>Treated as Deferred</span>
             </div>
             <div className="submitType">
