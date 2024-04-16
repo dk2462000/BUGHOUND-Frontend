@@ -26,12 +26,12 @@ const LoginForm = () => {
     try {
       const response = await axios.post(
         LOGIN_ENDPOINT,
-        { username, password },
+        { username: username.toLowerCase(), password },
         { headers: { "Content-Type": "application/json" } }
       );
 
-      const userType = response.data; // Assuming API returns a string directly
-      console.log("User Type:", userType); // Debugging: Log user type
+      const userType = response.data;
+      console.log("User Type:", userType);
 
       setAuth({ user: username, userType });
       setUsername("");
@@ -63,6 +63,11 @@ const LoginForm = () => {
     }
   };
 
+  const handleUsernameChange = (e) => {
+    // Update the username state in lowercase
+    setUsername(e.target.value.toLowerCase());
+  };
+
   return (
     <div className="create-user-container">
       {" "}
@@ -77,7 +82,7 @@ const LoginForm = () => {
             id="username"
             ref={userInputRef}
             autoComplete="off"
-            onChange={(e) => setUsername(e.target.value)}
+            onChange={handleUsernameChange}
             value={username}
             required
           />

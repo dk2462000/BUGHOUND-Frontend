@@ -14,10 +14,20 @@ import {
 } from "@mui/material";
 import axios from "axios";
 import AppBar from "../../AppBar";
+import { useAuth } from "../../context/AuthProvider";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  Avatar,
+  IconButton,
+} from "@mui/material";
 
-const DeveloperBugDetails = () => {
+const ManagerBugDetails = () => {
   const { bugId } = useParams();
   const [editDetails, setEditDetails] = useState({});
+  const { auth } = useAuth();
+  const { user: username } = auth;
   const [programs, setPrograms] = useState([]);
   const [allusers, setAllUsers] = useState([]);
   const [developers, setDevelopers] = useState([]);
@@ -94,6 +104,7 @@ const DeveloperBugDetails = () => {
       const newComment = {
         comment: editDetails.newComment,
         commentTime: new Date().toISOString(),
+        reportedBy: username,
       };
       const updatedComments = [...(editDetails.comments || []), newComment];
       setEditDetails((prev) => ({
@@ -104,7 +115,10 @@ const DeveloperBugDetails = () => {
       fetch(`http://localhost:8080/bugs/${bugId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ comment: newComment.comment }),
+        body: JSON.stringify({
+          comment: newComment.comment,
+          commentReporter: newComment.reportedBy,
+        }),
       })
         .then((response) => response.json())
         .then(() => alert("Comment added successfully!"))
@@ -169,7 +183,7 @@ const DeveloperBugDetails = () => {
 
   return (
     <div>
-      <AppBar title="Edit Bugs" />
+      <AppBar title="Edit Bug Record" />
       <Button
         onClick={goToDashboard}
         variant="contained"
@@ -367,39 +381,6 @@ const DeveloperBugDetails = () => {
               ))}
             </Select>
           </FormControl>
-
-          <Typography variant="h6" gutterBottom mt={2}>
-            Comments
-          </Typography>
-          {editDetails.comments &&
-            editDetails.comments.map((comment, index) => (
-              <Typography
-                key={index}
-                sx={{ bgcolor: "background.paper", p: 2, borderRadius: 1 }}
-              >
-                {comment.commentTime
-                  ? new Date(comment.commentTime).toLocaleString()
-                  : "Recent"}
-                : {comment.comment}
-              </Typography>
-            ))}
-          <TextField
-            label="Add a Comment"
-            name="newComment"
-            value={editDetails.newComment}
-            onChange={handleInputChange}
-            multiline
-            rows={4}
-            fullWidth
-          />
-          <Button
-            onClick={handleAddComment}
-            variant="contained"
-            color="secondary"
-            sx={{ mt: 2 }}
-          >
-            Add Comment
-          </Button>
           <FormControl fullWidth>
             <InputLabel id="Status-label">Status</InputLabel>
             <Select
@@ -437,13 +418,6 @@ const DeveloperBugDetails = () => {
             </Select>
           </FormControl>
 
-          {/* <TextField
-          label="Priority"
-          name="priority"
-          value={editDetails.priority || ''}
-          onChange={handleInputChange}
-          fullWidth
-        /> */}
           <FormControl fullWidth>
             <InputLabel id="resolution-label">Resolution</InputLabel>
             <Select
@@ -584,6 +558,23 @@ const DeveloperBugDetails = () => {
               <p>{error}</p>
             )}
           </div>
+          <TextField
+            label="Add a Comment"
+            name="newComment"
+            value={editDetails.newComment}
+            onChange={handleInputChange}
+            multiline
+            rows={4}
+            fullWidth
+          />
+          <Button
+            onClick={handleAddComment}
+            variant="contained"
+            color="secondary"
+            sx={{ mt: 2 }}
+          >
+            Add Comment
+          </Button>
           <Button
             type="submit"
             variant="contained"
@@ -592,10 +583,49 @@ const DeveloperBugDetails = () => {
           >
             Save Changes
           </Button>
+          <Typography variant="h6" gutterBottom mt={2}>
+            Previous Comments
+          </Typography>
+          {editDetails.comments &&
+            [...editDetails.comments] // Copy to a new array to avoid mutating the original state
+              .sort((a, b) => new Date(b.commentTime) - new Date(a.commentTime)) // Sorting
+              .map((comment, index) => (
+                <Card
+                  key={index}
+                  sx={{
+                    mt: 2,
+                    bgcolor: "background.paper",
+                  }}
+                >
+                  <CardHeader
+                    avatar={
+                      <Avatar aria-label="comment">
+                        {comment.reportedBy.charAt(0).toUpperCase()}
+                      </Avatar>
+                    }
+                    action={
+                      <IconButton aria-label="settings">
+                        {/* Add any action icons if needed */}
+                      </IconButton>
+                    }
+                    title={`Comment by ${comment.reportedBy}`}
+                    subheader={
+                      comment.commentTime
+                        ? new Date(comment.commentTime).toLocaleString()
+                        : "Recent"
+                    }
+                  />
+                  <CardContent>
+                    <Typography variant="body2" color="text.secondary">
+                      {comment.comment}
+                    </Typography>
+                  </CardContent>
+                </Card>
+              ))}
         </form>
       </Box>
     </div>
   );
 };
 
-export default DeveloperBugDetails;
+export default ManagerBugDetails;

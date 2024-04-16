@@ -54,7 +54,7 @@ const DeveloperViewBugs = () => {
   }, [bugId]);
 
   const goToDashboard = () => {
-    navigate("/DeveloperDashBoard");
+    navigate("/DeveloperDashboard");
   };
 
   useEffect(() => {
@@ -133,6 +133,15 @@ const DeveloperViewBugs = () => {
   return (
     <div>
       <AppBar title="Bug Details" />
+      <Button
+        onClick={goToDashboard}
+        variant="contained"
+        color="primary"
+        sx={{ mt: 2 }}
+        style={{ margin: "20px" }}
+      >
+        Back to Dashboard
+      </Button>
       <Box
         sx={{
           maxWidth: 800,
@@ -143,15 +152,6 @@ const DeveloperViewBugs = () => {
           borderRadius: 2,
         }}
       >
-        <Button
-          onClick={goToDashboard}
-          variant="contained"
-          color="primary"
-          sx={{ mt: 2 }}
-          style={{ margin: "20px" }}
-        >
-          Back to Dashboard
-        </Button>
         <Typography variant="h5" gutterBottom>
           View Bug Details (ID: {bugId})
         </Typography>
@@ -184,6 +184,7 @@ const DeveloperViewBugs = () => {
             <TableHead>
               <TableRow>
                 <StyledTableCell>Date and Time</StyledTableCell>
+                <StyledTableCell>Comment By</StyledTableCell>
                 <StyledTableCell>Comment</StyledTableCell>
               </TableRow>
             </TableHead>
@@ -196,6 +197,7 @@ const DeveloperViewBugs = () => {
                         ? new Date(comment.commentTime).toLocaleString()
                         : "Recent"}
                     </TableCell>
+                    <TableCell>{comment.reportedBy}</TableCell>
                     <TableCell>{comment.comment}</TableCell>
                   </StyledTableRow>
                 ))}

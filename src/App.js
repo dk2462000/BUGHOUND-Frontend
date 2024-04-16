@@ -1,6 +1,5 @@
 import "./App.css";
 import CreateBug from "./components/CreateBug";
-import Updatebug from "./components/CreateBug";
 import DeveloperDashBoard from "./developer/DeveloperDashboard";
 import TesterDashboard from "./tester/TesterDashboard";
 import DeveloperBugDetails from "./developer/component/BugDetails";
@@ -26,7 +25,6 @@ function App() {
           <Routes>
             <Route path="/" element={<Login />} />
             <Route path="/CreateBug" element={<CreateBug />} />
-            <Route path="/Updatebug" element={<Updatebug />} />
             <Route
               path="/DeveloperDashBoard"
               element={<DeveloperDashBoard />}

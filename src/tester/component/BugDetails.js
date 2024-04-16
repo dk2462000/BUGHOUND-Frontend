@@ -132,7 +132,7 @@ const TesterBugDetails = () => {
 
   return (
     <div>
-      <AppBar title="Edit Bugs" />
+      <AppBar title="Bug Details" />
       <Button
         onClick={goToDashboard}
         variant="contained"
@@ -184,6 +184,7 @@ const TesterBugDetails = () => {
             <TableHead>
               <TableRow>
                 <StyledTableCell>Date and Time</StyledTableCell>
+                <StyledTableCell>Comment By</StyledTableCell>
                 <StyledTableCell>Comment</StyledTableCell>
               </TableRow>
             </TableHead>
@@ -196,6 +197,7 @@ const TesterBugDetails = () => {
                         ? new Date(comment.commentTime).toLocaleString()
                         : "Recent"}
                     </TableCell>
+                    <TableCell>{comment.reportedBy}</TableCell>
                     <TableCell>{comment.comment}</TableCell>
                   </StyledTableRow>
                 ))}

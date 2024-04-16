@@ -67,7 +67,7 @@ const CreateUser = () => {
     }
 
     const userData = {
-      username: user,
+      username: user.toLowerCase(),
       firstName: firstName,
       lastName: lastName,
       emailId: email,
