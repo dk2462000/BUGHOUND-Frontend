@@ -293,6 +293,7 @@ function CreateBug() {
             InputLabelProps={{
               shrink: true, // This ensures the label does not overlap with the placeholder text
             }}
+            inputProps={{ max: new Date().toISOString().split("T")[0] }}
           />
           <div className="file-input-container">
             <input type="file" id="file" multiple onChange={handleFileChange} />

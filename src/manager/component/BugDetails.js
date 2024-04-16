@@ -521,6 +521,7 @@ const DeveloperBugDetails = () => {
             onChange={handleInputChange}
             fullWidth
             InputLabelProps={{ shrink: true }}
+            inputProps={{ max: new Date().toISOString().split("T")[0] }}
           />
 
           <FormControl fullWidth>
@@ -550,6 +551,7 @@ const DeveloperBugDetails = () => {
             onChange={handleInputChange}
             fullWidth
             InputLabelProps={{ shrink: true }}
+            inputProps={{ max: new Date().toISOString().split("T")[0] }}
           />
 
           <FormControlLabel
