@@ -105,6 +105,40 @@ const ManagerDashboard = () => {
     XLSX.writeFile(workbook, `${fileName}.xlsx`);
   };
 
+  const exportToText = (apiData, fileName) => {
+    let textData = apiData
+      .map((data) => {
+        return Object.values(data).join(", ");
+      })
+      .join("\n");
+
+    const blob = new Blob([textData], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.download = `${fileName}.txt`;
+    link.href = url;
+    link.click();
+  };
+
+  const exportToXML = (apiData, fileName) => {
+    let xmlData = '<?xml version="1.0"?>\n<bugs>\n';
+    apiData.forEach((data) => {
+      xmlData += "  <bug>\n";
+      for (const key in data) {
+        xmlData += `    <${key}>${data[key]}</${key}>\n`;
+      }
+      xmlData += "  </bug>\n";
+    });
+    xmlData += "</bugs>";
+
+    const blob = new Blob([xmlData], { type: "application/xml" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.download = `${fileName}.xml`;
+    link.href = url;
+    link.click();
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       const result = await axios("http://localhost:8080/bugs");
@@ -388,6 +422,18 @@ const ManagerDashboard = () => {
         style={buttonStyle}
       >
         Export to Excel
+      </button>
+      <button
+        onClick={() => exportToText(filteredBugs, "Bug_Report_ASCII")}
+        style={buttonStyle}
+      >
+        Export to ASCII Text
+      </button>
+      <button
+        onClick={() => exportToXML(filteredBugs, "Bug_Report_XML")}
+        style={buttonStyle}
+      >
+        Export to XML
       </button>
     </div>
   );
