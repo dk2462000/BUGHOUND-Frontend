@@ -1,18 +1,57 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { DataGrid } from "@mui/x-data-grid";
 import { Typography, Button } from "@mui/material";
-
-const columns = [
-  { field: "funcName", headerName: "Function Areas", width: 200 },
-];
+import { useNavigate } from "react-router-dom";
 
 export default function DisplayFunction({ functionList, fetchFunctions }) {
+  const [data, setData] = useState([]);
+  const navigate = useNavigate();
   const [selectionModel, setSelectionModel] = useState([]);
+  const columns = [
+    {
+      field: "funcId",
+      headerName: "Function ID",
+      width: 150,
+      renderCell: (params) => (
+        <Button
+          color="primary"
+          onClick={() => navigate(`/edit-function/${params.value}`)}
+        >
+          {params.value}
+        </Button>
+      ),
+    },
+    { field: "funcName", headerName: "Function Name", width: 200 },
+    { field: "programId", headerName: "Program ID", width: 150 },
+    { field: "progName", headerName: "Program Name", width: 200 },
+    { field: "progVersion", headerName: "Program Version", width: 150 },
+    { field: "progRelease", headerName: "Program Release", width: 150 },
+  ];
+
+  useEffect(() => {
+    const fetchProgramDetails = async () => {
+      const detailedData = await Promise.all(
+        functionList.map(async (func) => {
+          const response = await fetch(
+            `http://localhost:8080/program/${func.programId}`
+          );
+          const program = await response.json();
+          return {
+            ...func,
+            progName: program.progName,
+            progVersion: program.progVersion,
+            progRelease: program.progRelease,
+          };
+        })
+      );
+      setData(detailedData);
+    };
+    fetchProgramDetails();
+  }, [functionList]);
 
   const handleDelete = async () => {
     const deletePromises = selectionModel.map((id) => {
-      const func = functionList.find((f) => f.id === id);
-      return fetch(`http://localhost:8080/functions/remove/${func.funcName}`, {
+      return fetch(`http://localhost:8080/functions/remove/${id}`, {
         method: "DELETE",
       });
     });
@@ -20,7 +59,7 @@ export default function DisplayFunction({ functionList, fetchFunctions }) {
     try {
       await Promise.all(deletePromises);
       fetchFunctions(); // Refresh the function list after successful deletion
-      setSelectionModel([]); // Clear the selection model
+      setSelectionModel([]);
     } catch (error) {
       console.error("Failed to delete:", error);
     }
@@ -30,7 +69,7 @@ export default function DisplayFunction({ functionList, fetchFunctions }) {
     <div
       style={{
         height: 300,
-        width: "60%",
+        width: "80%",
         margin: "auto",
         marginTop: "30px",
         marginBottom: "50px",
@@ -45,15 +84,12 @@ export default function DisplayFunction({ functionList, fetchFunctions }) {
         Function List
       </Typography>
       <DataGrid
-        rows={functionList}
+        rows={data}
         columns={columns}
         pageSize={5}
         rowsPerPageOptions={[5, 10]}
         checkboxSelection
-        onRowSelectionModelChange={(newSelectionModel) => {
-          console.log(newSelectionModel); // Now using onRowSelectionModelChange
-          setSelectionModel(newSelectionModel);
-        }}
+        onRowSelectionModelChange={setSelectionModel}
         rowSelectionModel={selectionModel}
       />
       <Typography

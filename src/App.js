@@ -11,6 +11,7 @@ import UserOperation from "./manager/UserOperation";
 import ManageUser from "./manager/ManageUser";
 import EditUser from "./manager/EditUser";
 import EditProgram from "./manager/EditProgram";
+import EditFunction from "./manager/EditFunction";
 import Login from "./Login";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthProvider";
@@ -43,6 +44,7 @@ function App() {
             <Route path="/manage-program" element={<ManageProgram />} />
             <Route path="/edit-program/:id" element={<EditProgram />} />
             <Route path="/manage-function" element={<ManageFunction />} />
+            <Route path="/edit-function/:funcId" element={<EditFunction />} />
             <Route path="/manage-user" element={<UserOperation />} />
             <Route path="/create-user" element={<CreateUser />} />
             <Route path="/manage-users" element={<ManageUser />} />
