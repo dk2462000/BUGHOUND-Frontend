@@ -16,6 +16,7 @@ import {
 import { styled } from "@mui/material/styles";
 import axios from "axios";
 import AppBar from "../../AppBar";
+import AttachmentViewer from "../../AttachmentViewer";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   fontWeight: "bold",
@@ -113,6 +114,22 @@ const TesterBugDetails = () => {
         return "application/octet-stream"; // A generic binary data MIME type
     }
   }
+
+  // Add these states to manage the viewer modal
+  const [isViewerOpen, setIsViewerOpen] = useState(false);
+  const [selectedAttachment, setSelectedAttachment] = useState(null);
+
+  // Handler function to open the viewer
+  const openViewer = (attachment) => {
+    setSelectedAttachment({ ...attachment, bugId }); // Pass the bugId here
+    setIsViewerOpen(true);
+  };
+
+  // Handler function to close the viewer
+  const closeViewer = () => {
+    setIsViewerOpen(false);
+    setSelectedAttachment(null);
+  };
 
   if (!editDetails)
     return (
@@ -212,12 +229,10 @@ const TesterBugDetails = () => {
           {attachments.length > 0 ? (
             attachments.map((attachment, index) => (
               <div key={index}>
-                <a
-                  href={attachment.url}
-                  download={`Bug_${bugId}_Attachment${attachment.attachmentId}.${attachment.extension}`}
-                >
-                  Download Attachment {attachment.attachmentId}
-                </a>
+                {/* Add an onClick event to open the viewer */}
+                <Button onClick={() => openViewer(attachment)}>
+                  View Attachment {attachment.attachmentId}
+                </Button>
               </div>
             ))
           ) : (
@@ -225,6 +240,12 @@ const TesterBugDetails = () => {
           )}
         </div>
       </Box>
+      {isViewerOpen && (
+        <AttachmentViewer
+          attachment={selectedAttachment}
+          onClose={closeViewer}
+        />
+      )}
     </div>
   );
 };
