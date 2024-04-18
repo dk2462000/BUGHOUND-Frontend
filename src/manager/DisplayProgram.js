@@ -1,34 +1,107 @@
-import React from "react";
+import React, { useState } from "react";
 import { DataGrid } from "@mui/x-data-grid";
 import { Typography, Button } from "@mui/material";
-import { useState } from "react";
-
-const columns = [
-  { field: "name", headerName: "Program Name", width: 150 },
-  { field: "version", headerName: "Program Version", width: 150 },
-];
+import { useNavigate } from "react-router-dom";
 
 export default function DisplayProgram({ programList, fetchPrograms }) {
+  const navigate = useNavigate();
   const [selectionModel, setSelectionModel] = useState([]);
+  const columns = [
+    {
+      field: "id",
+      headerName: "Program ID",
+      width: 130,
+      renderCell: (params) => (
+        <Button
+          color="primary"
+          onClick={() => navigate(`/edit-program/${params.value}`)}
+        >
+          {params.value}
+        </Button>
+      ),
+    },
+    { field: "name", headerName: "Program Name", width: 150 },
+    { field: "version", headerName: "Program Version", width: 130 },
+    { field: "release", headerName: "Program Release", width: 130 },
+  ];
   const handleDelete = async () => {
-    // Call the delete API for each selected program
     const deletePromises = selectionModel.map((id) => {
-      const program = programList.find((p) => p.id === id);
-      return fetch(
-        `http://localhost:8080/programs/remove/${program.name}/${program.version}`,
-        {
-          method: "DELETE",
-        }
-      );
+      return fetch(`http://localhost:8080/program/delete/${id}`, {
+        method: "DELETE",
+      });
     });
 
     try {
       await Promise.all(deletePromises);
-      fetchPrograms(); // Refresh the program list after successful deletion
-      setSelectionModel([]); // Clear the selection model
+      fetchPrograms();
+      setSelectionModel([]);
     } catch (error) {
       console.error("Failed to delete:", error);
     }
+  };
+
+  const exportToASCII = () => {
+    const now = new Date(); // Current date and time in UTC
+    const localTimestamp = now.toLocaleString("en-US", {
+      timeZone: "America/Los_Angeles",
+    });
+    const formattedTimestamp = now
+      .toISOString()
+      .replace(/[-:T]/g, "")
+      .slice(0, 14);
+
+    const header = `Exported on: ${localTimestamp}\n`;
+    const content =
+      header +
+      programList
+        .map(
+          (prog) =>
+            `ID: ${prog.id}, Name: ${prog.name}, Version: ${prog.version}, Release: ${prog.release}`
+        )
+        .join("\n");
+
+    const blob = new Blob([content], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `programs_${formattedTimestamp}.txt`; // Append timestamp to filename
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const exportToXML = () => {
+    const now = new Date(); // Current date and time in UTC
+    const localTimestamp = now.toLocaleString("en-US", {
+      timeZone: "America/Los_Angeles",
+    }); // Adjust the 'timeZone' according to your location
+    const formattedTimestamp = now
+      .toISOString()
+      .replace(/[-:T]/g, "")
+      .slice(0, 14); // Simplified ISO string without special characters
+    const header = `<!-- Exported on: ${localTimestamp} -->\n`;
+    const xmlContent = [
+      '<?xml version="1.0" encoding="UTF-8"?>',
+      header, // Include timestamp as a comment in the XML
+      "<Programs>",
+      ...programList.map(
+        (prog) =>
+          `<Program>
+                <ID>${prog.id}</ID>
+                <Name>${prog.name}</Name>
+                <Version>${prog.version}</Version>
+                <Release>${prog.release}</Release>
+            </Program>`
+      ),
+      "</Programs>",
+    ].join("\n");
+
+    const blob = new Blob([xmlContent], { type: "application/xml" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `programs_${formattedTimestamp}.xml`; // Append timestamp to filename
+    link.click();
+    URL.revokeObjectURL(url);
   };
 
   return (
@@ -55,10 +128,7 @@ export default function DisplayProgram({ programList, fetchPrograms }) {
         pageSize={5}
         rowsPerPageOptions={[5, 10]}
         checkboxSelection
-        onRowSelectionModelChange={(newSelectionModel) => {
-          console.log(newSelectionModel); // Now using onRowSelectionModelChange
-          setSelectionModel(newSelectionModel);
-        }}
+        onRowSelectionModelChange={setSelectionModel}
         rowSelectionModel={selectionModel}
       />
       <Typography
@@ -77,6 +147,20 @@ export default function DisplayProgram({ programList, fetchPrograms }) {
         style={{ marginTop: "10px", marginBottom: "10px" }}
       >
         Delete Selected Program(s)
+      </Button>
+      <Button
+        variant="outlined"
+        onClick={exportToASCII}
+        style={{ margin: "10px" }}
+      >
+        Export to ASCII
+      </Button>
+      <Button
+        variant="outlined"
+        onClick={exportToXML}
+        style={{ margin: "10px" }}
+      >
+        Export to XML
       </Button>
     </div>
   );
