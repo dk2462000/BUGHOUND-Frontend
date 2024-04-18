@@ -125,7 +125,7 @@ const CreateUser = () => {
 
   return (
     <div>
-      <AppBar title={"Create User"} />
+      <AppBar title={"Create Employee"} />
       <button
         style={{ marginLeft: "20px" }}
         type="button"
@@ -268,8 +268,8 @@ const CreateUser = () => {
               <option style={{ fontFamily: "monospace" }} value="developer">
                 Developer
               </option>
-              <option style={{ fontFamily: "monospace" }} value="manager">
-                Manager
+              <option style={{ fontFamily: "monospace" }} value="admin">
+                Admin
               </option>
             </select>
           </div>

@@ -99,7 +99,7 @@ const EditUser = () => {
 
   return (
     <div>
-      <AppBar title="Edit User" />
+      <AppBar title="Edit Employee" />
       <div className="create-user-container">
         <form onSubmit={handleSubmit}>
           <div className="form-group">
@@ -197,7 +197,7 @@ const EditUser = () => {
               <option value="">Select User Type</option>
               <option value="tester">Tester</option>
               <option value="developer">Developer</option>
-              <option value="manager">Manager</option>
+              <option value="admin">Admin</option>
             </select>
           </div>
           <div className="form-group">

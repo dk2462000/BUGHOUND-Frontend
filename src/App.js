@@ -40,7 +40,7 @@ function App() {
               path="/testerbugdetails/:bugId"
               element={<TesterBugDetails />}
             />
-            <Route path="/ManagerDashboard" element={<ManagerDashboard />} />
+            <Route path="/AdminDashboard" element={<ManagerDashboard />} />
             <Route path="/manage-program" element={<ManageProgram />} />
             <Route path="/edit-program/:id" element={<EditProgram />} />
             <Route path="/manage-function" element={<ManageFunction />} />

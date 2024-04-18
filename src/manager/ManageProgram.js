@@ -28,7 +28,7 @@ function ManageProgram() {
   }, []);
 
   const handleBack = () => {
-    navigate("/ManagerDashboard", { replace: true }); // Navigates back to Manage Users
+    navigate("/AdminDashboard", { replace: true }); // Navigates back to Manage Users
   };
 
   return (

@@ -15,12 +15,12 @@ function UserOperation() {
   const navigate = useNavigate();
 
   const handleBack = () => {
-    navigate("/ManagerDashboard", { replace: true }); // Navigates back to Manage Users
+    navigate("/AdminDashboard", { replace: true }); // Navigates back to Manage Users
   };
 
   return (
     <div>
-      <AppBar title="User Management" />
+      <AppBar title="Employees Management" />
       <button
         style={{ marginLeft: "20px" }}
         type="button"
@@ -41,7 +41,7 @@ function UserOperation() {
                 component="th"
                 scope="row"
               >
-                To Create a New User
+                To Create a New Employee
               </TableCell>
               <TableCell align="auto">
                 <Button
@@ -49,7 +49,7 @@ function UserOperation() {
                   color="primary"
                   onClick={() => navigate("/create-user")}
                 >
-                  Create New User
+                  Create New Employee
                 </Button>
               </TableCell>
             </TableRow>
@@ -59,7 +59,7 @@ function UserOperation() {
                 component="th"
                 scope="row"
               >
-                To Manage Existing Users
+                To Manage Existing Employees
               </TableCell>
               <TableCell align="auto">
                 <Button
@@ -67,7 +67,7 @@ function UserOperation() {
                   color="primary"
                   onClick={() => navigate("/manage-users")}
                 >
-                  Manage Existing Users
+                  Manage Existing Employees
                 </Button>
               </TableCell>
             </TableRow>

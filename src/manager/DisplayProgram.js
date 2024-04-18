@@ -1,11 +1,22 @@
 import React, { useState } from "react";
 import { DataGrid } from "@mui/x-data-grid";
-import { Typography, Button } from "@mui/material";
+import {
+  Typography,
+  Button,
+  TextField,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Select,
+  Box,
+} from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
 export default function DisplayProgram({ programList, fetchPrograms }) {
   const navigate = useNavigate();
   const [selectionModel, setSelectionModel] = useState([]);
+  const [filterField, setFilterField] = useState("name"); // Default filter field
+  const [filterValue, setFilterValue] = useState("");
   const columns = [
     {
       field: "id",
@@ -104,6 +115,13 @@ export default function DisplayProgram({ programList, fetchPrograms }) {
     URL.revokeObjectURL(url);
   };
 
+  const filteredPrograms = programList.filter((program) => {
+    const itemValue = program[filterField]
+      ? program[filterField].toString().toLowerCase()
+      : "";
+    return itemValue.includes(filterValue.toLowerCase());
+  });
+
   return (
     <div
       style={{
@@ -122,8 +140,35 @@ export default function DisplayProgram({ programList, fetchPrograms }) {
       >
         Program List
       </Typography>
+      <Box
+        sx={{
+          display: "flex",
+          padding: "20px",
+        }}
+      >
+        <FormControl variant="outlined" sx={{ width: 200 }}>
+          <InputLabel>Filter By</InputLabel>
+          <Select
+            value={filterField}
+            label="Filter By"
+            onChange={(e) => setFilterField(e.target.value)}
+          >
+            <MenuItem value="name">Program Name</MenuItem>
+            <MenuItem value="version">Version</MenuItem>
+            <MenuItem value="release">Release</MenuItem>
+          </Select>
+        </FormControl>
+        <TextField
+          label="Search"
+          variant="outlined"
+          value={filterValue}
+          onChange={(e) => setFilterValue(e.target.value)}
+          style={{ marginLeft: "10px" }}
+          sx={{ width: 300 }}
+        />
+      </Box>
       <DataGrid
-        rows={programList}
+        rows={filteredPrograms}
         columns={columns}
         pageSize={5}
         rowsPerPageOptions={[5, 10]}

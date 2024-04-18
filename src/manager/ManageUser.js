@@ -35,6 +35,68 @@ export default function ManageUser() {
     }
   };
 
+  const exportToASCII = () => {
+    const now = new Date(); // Current date and time in UTC
+    const localTimestamp = now.toLocaleString("en-US", {
+      timeZone: "America/Los_Angeles",
+    });
+    const formattedTimestamp = now
+      .toISOString()
+      .replace(/[-:T]/g, "")
+      .slice(0, 14);
+
+    const header = `Exported on: ${localTimestamp}\n`;
+    const content =
+      header +
+      userList
+        .map(
+          (user) =>
+            `Username: ${user.username}, Name: ${user.firstName} ${user.lastName}, Email: ${user.emailId}, Type: ${user.userType}`
+        )
+        .join("\n");
+    const blob = new Blob([content], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `userList_${formattedTimestamp}.txt`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const exportToXML = () => {
+    const now = new Date(); // Current date and time in UTC
+    const localTimestamp = now.toLocaleString("en-US", {
+      timeZone: "America/Los_Angeles",
+    }); // Adjust the 'timeZone' according to your location
+    const formattedTimestamp = now
+      .toISOString()
+      .replace(/[-:T]/g, "")
+      .slice(0, 14); // Simplified ISO string without special characters
+    const header = `<!-- Exported on: ${localTimestamp} -->\n`;
+    const xmlContent = [
+      '<?xml version="1.0" encoding="UTF-8"?>',
+      header,
+      "<Users>",
+      ...userList.map(
+        (user) => `<User>
+          <Username>${user.username}</Username>
+          <FirstName>${user.firstName}</FirstName>
+          <LastName>${user.lastName}</LastName>
+          <Email>${user.emailId}</Email>
+          <Type>${user.userType}</Type>
+        </User>`
+      ),
+      "</Users>",
+    ].join("\n");
+    const blob = new Blob([xmlContent], { type: "application/xml" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `userList_${formattedTimestamp}.xml`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
   const columns = [
     {
       field: "username",
@@ -61,7 +123,7 @@ export default function ManageUser() {
 
   return (
     <div>
-      <AppBar title="Users Management" />
+      <AppBar title="Employees Management" />
       <button
         style={{ marginBottom: "20px", marginLeft: "20px" }}
         type="button"
@@ -90,7 +152,21 @@ export default function ManageUser() {
           disabled={selectionModel.length === 0}
           sx={{ m: 2 }}
         >
-          Delete Selected User(s)
+          Delete Selected Employee(s)
+        </Button>
+        <Button
+          variant="outlined"
+          onClick={exportToASCII}
+          style={{ margin: "10px" }}
+        >
+          Export to ASCII
+        </Button>
+        <Button
+          variant="outlined"
+          onClick={exportToXML}
+          style={{ margin: "10px" }}
+        >
+          Export to XML
         </Button>
       </div>
     </div>

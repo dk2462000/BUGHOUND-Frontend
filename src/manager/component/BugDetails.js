@@ -139,7 +139,7 @@ const ManagerBugDetails = () => {
       .then((response) => response.json())
       .then(() => {
         alert("Bug updated successfully!");
-        navigate("/ManagerDashboard");
+        navigate("/AdminDashboard");
       })
       .catch((error) => {
         console.error("Error updating bug: ", error);
@@ -178,7 +178,7 @@ const ManagerBugDetails = () => {
   }
 
   const goToDashboard = () => {
-    navigate("/ManagerDashboard");
+    navigate("/AdminDashboard");
   };
 
   return (

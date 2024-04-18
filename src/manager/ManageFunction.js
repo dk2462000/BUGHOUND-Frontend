@@ -12,9 +12,14 @@ function ManageFunction() {
     fetch("http://localhost:8080/functions")
       .then((res) => res.json())
       .then((result) => {
+        console.log(result);
         const transformedData = result.map((item, index) => ({
-          id: index,
+          id: item.funcId,
           funcName: item.funcName,
+          programId: item.programId, // Now using program_id as the primary field
+          name: item.progName,
+          version: item.progVersion,
+          release: item.progRelease,
         }));
         setFunctionList(transformedData);
       })
@@ -26,7 +31,7 @@ function ManageFunction() {
   }, []);
 
   const handleBack = () => {
-    navigate("/ManagerDashboard", { replace: true }); // Navigates back to Manage Users
+    navigate("/AdminDashboard", { replace: true }); // Navigates back to Manage Users
   };
 
   return (

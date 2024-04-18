@@ -171,7 +171,7 @@ const ManagerDashboard = () => {
 
   return (
     <div>
-      <AppBar title="Manager Dashboard" />
+      <AppBar title="Admin Dashboard" />
       <TableContainer
         component={Paper}
         style={{ maxWidth: 650, margin: "50px auto", padding: "20px" }}
@@ -183,7 +183,7 @@ const ManagerDashboard = () => {
           component="div"
           sx={{ flexGrow: 2 }}
         >
-          Manager Operations
+          Admin Operations
         </Typography>
         <div
           style={{
@@ -237,7 +237,7 @@ const ManagerDashboard = () => {
                 component="th"
                 scope="row"
               >
-                Add/Manage Programs
+                Add/Manage Functions
               </TableCell>
               <TableCell align="auto">
                 <Button
@@ -255,7 +255,7 @@ const ManagerDashboard = () => {
                 component="th"
                 scope="row"
               >
-                Add/Manage Users
+                Add/Manage Employee
               </TableCell>
               <TableCell align="auto">
                 <Button
@@ -263,7 +263,7 @@ const ManagerDashboard = () => {
                   color="primary"
                   onClick={() => navigate("/manage-user")}
                 >
-                  Manage Users
+                  Manage Employees
                 </Button>
               </TableCell>
             </TableRow>

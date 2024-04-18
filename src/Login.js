@@ -45,8 +45,8 @@ const LoginForm = () => {
         case "TESTER":
           navigate("/TesterDashboard", { replace: true });
           break;
-        case "MANAGER":
-          navigate("/ManagerDashboard", { replace: true });
+        case "ADMIN":
+          navigate("/AdminDashboard", { replace: true });
           break;
         default:
           setErrorMessage(

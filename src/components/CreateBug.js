@@ -122,8 +122,8 @@ function CreateBug() {
         navigate("/DeveloperDashboard");
       } else if (userType === "TESTER") {
         navigate("/TesterDashboard");
-      } else if (userType === "MANAGER") {
-        navigate("/ManagerDashboard");
+      } else if (userType === "ADMIN") {
+        navigate("/AdminDashboard");
       } else {
         console.log(
           "Role not recognized or user does not have a specific dashboard"
@@ -141,8 +141,8 @@ function CreateBug() {
       navigate("/DeveloperDashboard");
     } else if (userType === "TESTER") {
       navigate("/TesterDashboard");
-    } else if (userType === "MANAGER") {
-      navigate("/ManagerDashboard");
+    } else if (userType === "ADMIN") {
+      navigate("/AdminDashboard");
     } else {
       console.log(
         "Role not recognized or user does not have a specific dashboard"
