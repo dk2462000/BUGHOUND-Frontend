@@ -13,7 +13,7 @@ function ManageProgram() {
       .then((res) => res.json())
       .then((result) => {
         const transformedData = result.map((item) => ({
-          id: item.program_id, // Now using program_id as the primary field
+          id: item.id, // Now using program_id as the primary field
           name: item.progName,
           version: item.progVersion,
           release: item.progRelease, // Added new field

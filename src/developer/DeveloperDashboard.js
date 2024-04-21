@@ -73,12 +73,15 @@ const DeveloperDashboard = () => {
 
   const fieldDisplayNameMapping = {
     bug_id: "Bug ID",
-    buggyProgram: "Program",
-    reportType: "Report Type",
-    severity: "Severity",
+    buggyProgram: "Buggy Program", // Updated to match new column name
+    version: "Version", // New field
+    release: "Release", // New field
+    problemSummary: "Problem Summary", // New field
     reportedBy: "Reported By",
-    reportDate: "Report Date",
-    functionalArea: "Functional Area",
+    reportType: "Type", // Changed key to match the JSON structure
+    severity: "Severity",
+    reportDate: "Date", // Changed key to match the JSON structure
+    functionalArea: "Area", // Changed key and description
     assignedTo: "Assigned To",
     status: "Status",
     priority: "Priority",
@@ -122,20 +125,35 @@ const DeveloperDashboard = () => {
   };
 
   const filteredReportedBugs = reportFilter
-    ? reportedBugs.filter((bug) =>
-        bug[reportFilter]
-          ?.toString()
-          .toLowerCase()
-          .includes(reportSearchTerm.toLowerCase())
-      )
+    ? reportedBugs.filter((bug) => {
+        const key = reportFilter === "buggyProgram" ? "progName" : reportFilter;
+        const value =
+          reportFilter === "buggyProgram"
+            ? bug.buggyProgram?.progName
+            : bug[reportFilter];
+        return value
+          ? value
+              .toString()
+              .toLowerCase()
+              .includes(reportSearchTerm.toLowerCase())
+          : false;
+      })
     : reportedBugs;
+
   const filteredAssignedBugs = assignFilter
-    ? assignedBugs.filter((bug) =>
-        bug[assignFilter]
-          ?.toString()
-          .toLowerCase()
-          .includes(assignSearchTerm.toLowerCase())
-      )
+    ? assignedBugs.filter((bug) => {
+        const key = assignFilter === "buggyProgram" ? "progName" : assignFilter;
+        const value =
+          assignFilter === "buggyProgram"
+            ? bug.buggyProgram?.progName
+            : bug[assignFilter];
+        return value
+          ? value
+              .toString()
+              .toLowerCase()
+              .includes(assignSearchTerm.toLowerCase())
+          : false;
+      })
     : assignedBugs;
 
   const exportToExcel = (data, fileName) => {
@@ -212,159 +230,6 @@ const DeveloperDashboard = () => {
           </TableBody>
         </Table>
       </TableContainer>
-      <div
-        style={{
-          height: "2px",
-          backgroundColor: "black",
-          margin: "20px 0",
-          width: "100%",
-        }}
-      ></div>
-      <Typography
-        style={{ fontFamily: '"Segoe UI", sans-serif', flexGrow: 2 }}
-        variant="h4"
-        textAlign="auto"
-        component="div"
-      >
-        Assigned Bugs
-      </Typography>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <TableContainer
-          component={Paper}
-          style={{
-            margin: "20px",
-            maxWidth: "95%",
-            maxHeight: 500,
-            border: "3px solid rgb(0, 0, 0)",
-          }}
-        >
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "flex-start",
-              padding: "10px",
-            }}
-          >
-            <TextField
-              select
-              label="Filter by"
-              value={assignFilter}
-              onChange={handleAssignFilterChange}
-              helperText="Select the column to filter"
-              variant="outlined"
-              style={{ margin: "10px", width: "200px" }}
-            >
-              <MenuItem value="">None</MenuItem>
-              {Object.entries(fieldDisplayNameMapping).map(([key, value]) => (
-                <MenuItem key={key} value={key}>
-                  {value}
-                </MenuItem>
-              ))}
-            </TextField>
-            {assignFilter === "reportDate" ? (
-              <TextField
-                type="text"
-                label="Enter Date (YYYY-MM-DD)"
-                value={assignSearchTerm}
-                onChange={handleAssignSearchChange}
-                variant="outlined"
-                style={{ margin: "10px", width: "200px" }}
-                placeholder="YYYY-MM-DD"
-                helperText="Use date format: YYYY-MM-DD"
-              />
-            ) : assignFilter && enumFields[assignFilter] ? (
-              <TextField
-                select
-                label="Search"
-                value={assignSearchTerm}
-                onChange={handleAssignSearchChange}
-                variant="outlined"
-                style={{ margin: "10px", width: "200px" }}
-              >
-                <MenuItem value="">-</MenuItem>
-                {enumFields[assignFilter].map((option) => (
-                  <MenuItem key={option} value={option}>
-                    {option}
-                  </MenuItem>
-                ))}
-              </TextField>
-            ) : (
-              <TextField
-                label="Search"
-                value={assignSearchTerm}
-                onChange={handleAssignSearchChange}
-                variant="outlined"
-                style={{ margin: "10px", width: "200px" }}
-                disabled={!assignFilter}
-              />
-            )}
-          </div>
-          <Table sx={{ minWidth: 650 }} aria-label="simple table">
-            <TableHead style={{ background: "#4fade4", fontWeight: "bold" }}>
-              <TableRow>
-                {[
-                  "Bug ID",
-                  "Program",
-                  "Type",
-                  "Severity",
-                  "Reported By",
-                  "Date",
-                  "Area",
-                  "Assigned To",
-                  "Status",
-                  "Priority",
-                  "Resolution",
-                  "Resolved By",
-                ].map((header) => (
-                  <TableCell key={header}>{header}</TableCell>
-                ))}
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {filteredAssignedBugs.map((bug) => (
-                <TableRow key={bug.bug_id}>
-                  <TableCell component="th" scope="row">
-                    <a
-                      href="#"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        editBugDetails(bug.bug_id);
-                      }}
-                    >
-                      {bug.bug_id}
-                    </a>
-                  </TableCell>
-                  <TableCell>{bug.buggyProgram || "-"}</TableCell>
-                  <TableCell>{bug.reportType || "-"}</TableCell>
-                  <TableCell>{bug.severity || "-"}</TableCell>
-                  <TableCell>{bug.reportedBy || "-"}</TableCell>
-                  <TableCell>
-                    {bug.reportDate ? bug.reportDate.split("T")[0] : "-"}
-                  </TableCell>
-                  <TableCell>{bug.functionalArea || "-"}</TableCell>
-                  <TableCell>{bug.assignedTo || "-"}</TableCell>
-                  <TableCell>{bug.status || "-"}</TableCell>
-                  <TableCell>{bug.priority || "-"}</TableCell>
-                  <TableCell>{bug.resolution || "-"}</TableCell>
-                  <TableCell>{bug.resolvedBy || "-"}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </div>
-      <button
-        onClick={() => exportToExcel(filteredAssignedBugs, "Bug_Report")}
-        style={buttonStyle}
-      >
-        Export to Excel
-      </button>
       <div
         style={{
           height: "2px",
@@ -463,10 +328,13 @@ const DeveloperDashboard = () => {
               <TableRow>
                 {[
                   "Bug ID",
-                  "Program",
+                  "Buggy Program",
+                  "Version",
+                  "Release",
+                  "Problem Summary",
+                  "Reported By",
                   "Type",
                   "Severity",
-                  "Reported By",
                   "Date",
                   "Area",
                   "Assigned To",
@@ -493,14 +361,17 @@ const DeveloperDashboard = () => {
                       {bug.bug_id}
                     </a>
                   </TableCell>
-                  <TableCell>{bug.buggyProgram || "-"}</TableCell>
+                  <TableCell>{bug.buggyProgram?.progName || "-"}</TableCell>
+                  <TableCell>{bug.buggyProgram?.progVersion || "-"}</TableCell>
+                  <TableCell>{bug.buggyProgram?.progRelease || "-"}</TableCell>
+                  <TableCell>{bug.problemSummary || "-"}</TableCell>
+                  <TableCell>{bug.reportedBy || "-"}</TableCell>
                   <TableCell>{bug.reportType || "-"}</TableCell>
                   <TableCell>{bug.severity || "-"}</TableCell>
-                  <TableCell>{bug.reportedBy || "-"}</TableCell>
                   <TableCell>
                     {bug.reportDate ? bug.reportDate.split("T")[0] : "-"}
                   </TableCell>
-                  <TableCell>{bug.functionalArea || "-"}</TableCell>
+                  <TableCell>{bug.function?.funcName || "-"}</TableCell>
                   <TableCell>{bug.assignedTo || "-"}</TableCell>
                   <TableCell>{bug.status || "-"}</TableCell>
                   <TableCell>{bug.priority || "-"}</TableCell>
@@ -518,6 +389,167 @@ const DeveloperDashboard = () => {
       >
         Export to Excel
       </button>
+
+      <div
+        style={{
+          height: "2px",
+          backgroundColor: "black",
+          margin: "20px 0",
+          width: "100%",
+        }}
+      ></div>
+      <Typography
+        style={{ fontFamily: '"Segoe UI", sans-serif', flexGrow: 2 }}
+        variant="h4"
+        textAlign="auto"
+        component="div"
+      >
+        Assigned Bugs
+      </Typography>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <TableContainer
+          component={Paper}
+          style={{
+            margin: "20px",
+            maxWidth: "95%",
+            maxHeight: 500,
+            border: "3px solid rgb(0, 0, 0)",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "flex-start",
+              padding: "10px",
+            }}
+          >
+            <TextField
+              select
+              label="Filter by"
+              value={assignFilter}
+              onChange={handleAssignFilterChange}
+              helperText="Select the column to filter"
+              variant="outlined"
+              style={{ margin: "10px", width: "200px" }}
+            >
+              <MenuItem value="">None</MenuItem>
+              {Object.entries(fieldDisplayNameMapping).map(([key, value]) => (
+                <MenuItem key={key} value={key}>
+                  {value}
+                </MenuItem>
+              ))}
+            </TextField>
+            {assignFilter === "reportDate" ? (
+              <TextField
+                type="text"
+                label="Enter Date (YYYY-MM-DD)"
+                value={assignSearchTerm}
+                onChange={handleAssignSearchChange}
+                variant="outlined"
+                style={{ margin: "10px", width: "200px" }}
+                placeholder="YYYY-MM-DD"
+                helperText="Use date format: YYYY-MM-DD"
+              />
+            ) : assignFilter && enumFields[assignFilter] ? (
+              <TextField
+                select
+                label="Search"
+                value={assignSearchTerm}
+                onChange={handleAssignSearchChange}
+                variant="outlined"
+                style={{ margin: "10px", width: "200px" }}
+              >
+                <MenuItem value="">-</MenuItem>
+                {enumFields[assignFilter].map((option) => (
+                  <MenuItem key={option} value={option}>
+                    {option}
+                  </MenuItem>
+                ))}
+              </TextField>
+            ) : (
+              <TextField
+                label="Search"
+                value={assignSearchTerm}
+                onChange={handleAssignSearchChange}
+                variant="outlined"
+                style={{ margin: "10px", width: "200px" }}
+                disabled={!assignFilter}
+              />
+            )}
+          </div>
+          <Table sx={{ minWidth: 650 }} aria-label="simple table">
+            <TableHead style={{ background: "#4fade4", fontWeight: "bold" }}>
+              <TableRow>
+                {[
+                  "Bug ID",
+                  "Buggy Program",
+                  "Version",
+                  "Release",
+                  "Problem Summary",
+                  "Reported By",
+                  "Type",
+                  "Severity",
+                  "Date",
+                  "Area",
+                  "Assigned To",
+                  "Status",
+                  "Priority",
+                  "Resolution",
+                  "Resolved By",
+                ].map((header) => (
+                  <TableCell key={header}>{header}</TableCell>
+                ))}
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {filteredAssignedBugs.map((bug) => (
+                <TableRow key={bug.bug_id}>
+                  <TableCell component="th" scope="row">
+                    <a
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        editBugDetails(bug.bug_id);
+                      }}
+                    >
+                      {bug.bug_id}
+                    </a>
+                  </TableCell>
+                  <TableCell>{bug.buggyProgram?.progName || "-"}</TableCell>
+                  <TableCell>{bug.buggyProgram?.progVersion || "-"}</TableCell>
+                  <TableCell>{bug.buggyProgram?.progRelease || "-"}</TableCell>
+                  <TableCell>{bug.problemSummary || "-"}</TableCell>
+                  <TableCell>{bug.reportedBy || "-"}</TableCell>
+                  <TableCell>{bug.reportType || "-"}</TableCell>
+                  <TableCell>{bug.severity || "-"}</TableCell>
+                  <TableCell>
+                    {bug.reportDate ? bug.reportDate.split("T")[0] : "-"}
+                  </TableCell>
+                  <TableCell>{bug.function?.funcName || "-"}</TableCell>
+                  <TableCell>{bug.assignedTo || "-"}</TableCell>
+                  <TableCell>{bug.status || "-"}</TableCell>
+                  <TableCell>{bug.priority || "-"}</TableCell>
+                  <TableCell>{bug.resolution || "-"}</TableCell>
+                  <TableCell>{bug.resolvedBy || "-"}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </div>
+      <button
+        onClick={() => exportToExcel(filteredAssignedBugs, "Bug_Report")}
+        style={buttonStyle}
+      >
+        Export to Excel
+      </button>
+
       <div
         style={{
           height: "2px",

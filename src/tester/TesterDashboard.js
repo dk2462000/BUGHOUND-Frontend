@@ -70,12 +70,15 @@ const TesterDashboard = () => {
 
   const fieldDisplayNameMapping = {
     bug_id: "Bug ID",
-    buggyProgram: "Program",
-    reportType: "Report Type",
-    severity: "Severity",
+    buggyProgram: "Buggy Program", // Updated to match new column name
+    version: "Version", // New field
+    release: "Release", // New field
+    problemSummary: "Problem Summary", // New field
     reportedBy: "Reported By",
-    reportDate: "Report Date",
-    functionalArea: "Functional Area",
+    reportType: "Type", // Changed key to match the JSON structure
+    severity: "Severity",
+    reportDate: "Date", // Changed key to match the JSON structure
+    functionalArea: "Area", // Changed key and description
     assignedTo: "Assigned To",
     status: "Status",
     priority: "Priority",
@@ -84,22 +87,64 @@ const TesterDashboard = () => {
   };
 
   const exportToExcel = (apiData, fileName) => {
-    const transformedData = apiData.map((data) => {
-      return {
-        ...data,
-        comments: data.comments
-          .map(
-            (comment) =>
-              `Time: ${comment.commentTime}, Comment: ${comment.comment}`
-          )
-          .join("; "),
-      };
-    });
+    const transformedData = apiData.map((data) => ({
+      ...data,
+      buggyProgram: data.buggyProgram ? data.buggyProgram.progName : "-",
+      version: data.buggyProgram ? data.buggyProgram.progVersion : "-",
+      release: data.buggyProgram ? data.buggyProgram.progRelease : "-",
+      functionalArea: data.function ? data.function.funcName : "-",
+      comments: data.comments
+        .map(
+          (comment) =>
+            `Time: ${comment.commentTime}, Comment: ${comment.comment}`
+        )
+        .join("; "),
+      attachments: data.attachments
+        .map(
+          (attachment) =>
+            `ID: ${attachment.attachmentId}, Data: ${attachment.attachment}`
+        )
+        .join("; "),
+    }));
+
     const worksheet = XLSX.utils.json_to_sheet(transformedData);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Bugs");
-    // Download
     XLSX.writeFile(workbook, `${fileName}.xlsx`);
+  };
+
+  const exportToText = (apiData, fileName) => {
+    let textData = apiData
+      .map((data) => {
+        return Object.values(data).join(", ");
+      })
+      .join("\n");
+
+    const blob = new Blob([textData], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.download = `${fileName}.txt`;
+    link.href = url;
+    link.click();
+  };
+
+  const exportToXML = (apiData, fileName) => {
+    let xmlData = '<?xml version="1.0"?>\n<bugs>\n';
+    apiData.forEach((data) => {
+      xmlData += "  <bug>\n";
+      for (const key in data) {
+        xmlData += `    <${key}>${data[key]}</${key}>\n`;
+      }
+      xmlData += "  </bug>\n";
+    });
+    xmlData += "</bugs>";
+
+    const blob = new Blob([xmlData], { type: "application/xml" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.download = `${fileName}.xml`;
+    link.href = url;
+    link.click();
   };
 
   useEffect(() => {
@@ -129,7 +174,9 @@ const TesterDashboard = () => {
 
   const filteredBugs = filter
     ? bugs.filter((bug) => {
-        const value = bug[filter];
+        const key = filter === "buggyProgram" ? "progName" : filter;
+        const value =
+          filter === "buggyProgram" ? bug.buggyProgram?.progName : bug[filter];
         return value
           ? value.toString().toLowerCase().includes(searchTerm.toLowerCase())
           : false;
@@ -281,10 +328,13 @@ const TesterDashboard = () => {
               <TableRow>
                 {[
                   "Bug ID",
-                  "Program",
+                  "Buggy Program",
+                  "Version",
+                  "Release",
+                  "Problem Summary",
+                  "Reported By",
                   "Type",
                   "Severity",
-                  "Reported By",
                   "Date",
                   "Area",
                   "Assigned To",
@@ -311,14 +361,17 @@ const TesterDashboard = () => {
                       {bug.bug_id}
                     </a>
                   </TableCell>
-                  <TableCell>{bug.buggyProgram || "-"}</TableCell>
+                  <TableCell>{bug.buggyProgram?.progName || "-"}</TableCell>
+                  <TableCell>{bug.buggyProgram?.progVersion || "-"}</TableCell>
+                  <TableCell>{bug.buggyProgram?.progRelease || "-"}</TableCell>
+                  <TableCell>{bug.problemSummary || "-"}</TableCell>
+                  <TableCell>{bug.reportedBy || "-"}</TableCell>
                   <TableCell>{bug.reportType || "-"}</TableCell>
                   <TableCell>{bug.severity || "-"}</TableCell>
-                  <TableCell>{bug.reportedBy || "-"}</TableCell>
                   <TableCell>
                     {bug.reportDate ? bug.reportDate.split("T")[0] : "-"}
                   </TableCell>
-                  <TableCell>{bug.functionalArea || "-"}</TableCell>
+                  <TableCell>{bug.function?.funcName || "-"}</TableCell>
                   <TableCell>{bug.assignedTo || "-"}</TableCell>
                   <TableCell>{bug.status || "-"}</TableCell>
                   <TableCell>{bug.priority || "-"}</TableCell>
@@ -335,6 +388,18 @@ const TesterDashboard = () => {
         style={buttonStyle}
       >
         Export to Excel
+      </button>
+      <button
+        onClick={() => exportToText(filteredBugs, "Bug_Report_ASCII")}
+        style={buttonStyle}
+      >
+        Export to ASCII Text
+      </button>
+      <button
+        onClick={() => exportToXML(filteredBugs, "Bug_Report_XML")}
+        style={buttonStyle}
+      >
+        Export to XML
       </button>
     </div>
   );

@@ -18,8 +18,8 @@ import * as XLSX from "xlsx";
 const ManagerDashboard = () => {
   const navigate = useNavigate();
   const [bugs, setBugs] = useState([]);
-  const [filter, setFilter] = useState("");
-  const [searchTerm, setSearchTerm] = useState("");
+  const [filter, setFilter] = useState("status");
+  const [searchTerm, setSearchTerm] = useState("OPEN");
 
   // Define some inline styles
   const buttonStyle = {
@@ -67,12 +67,15 @@ const ManagerDashboard = () => {
 
   const fieldDisplayNameMapping = {
     bug_id: "Bug ID",
-    buggyProgram: "Program",
-    reportType: "Report Type",
-    severity: "Severity",
+    buggyProgram: "Buggy Program", // Updated to match new column name
+    version: "Version", // New field
+    release: "Release", // New field
+    problemSummary: "Problem Summary", // New field
     reportedBy: "Reported By",
-    reportDate: "Report Date",
-    functionalArea: "Functional Area",
+    reportType: "Type", // Changed key to match the JSON structure
+    severity: "Severity",
+    reportDate: "Date", // Changed key to match the JSON structure
+    functionalArea: "Area", // Changed key and description
     assignedTo: "Assigned To",
     status: "Status",
     priority: "Priority",
@@ -81,27 +84,29 @@ const ManagerDashboard = () => {
   };
 
   const exportToExcel = (apiData, fileName) => {
-    const transformedData = apiData.map((data) => {
-      return {
-        ...data,
-        comments: data.comments
-          .map(
-            (comment) =>
-              `Time: ${comment.commentTime}, Comment: ${comment.comment}`
-          )
-          .join("; "),
-        attachments: data.attachments
-          .map(
-            (attachment) =>
-              `ID: ${attachment.attachmentId}, Data: ${attachment.attachment}`
-          )
-          .join("; "),
-      };
-    });
+    const transformedData = apiData.map((data) => ({
+      ...data,
+      buggyProgram: data.buggyProgram ? data.buggyProgram.progName : "-",
+      version: data.buggyProgram ? data.buggyProgram.progVersion : "-",
+      release: data.buggyProgram ? data.buggyProgram.progRelease : "-",
+      functionalArea: data.function ? data.function.funcName : "-",
+      comments: data.comments
+        .map(
+          (comment) =>
+            `Time: ${comment.commentTime}, Comment: ${comment.comment}`
+        )
+        .join("; "),
+      attachments: data.attachments
+        .map(
+          (attachment) =>
+            `ID: ${attachment.attachmentId}, Data: ${attachment.attachment}`
+        )
+        .join("; "),
+    }));
+
     const worksheet = XLSX.utils.json_to_sheet(transformedData);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Bugs");
-    // Download
     XLSX.writeFile(workbook, `${fileName}.xlsx`);
   };
 
@@ -162,7 +167,9 @@ const ManagerDashboard = () => {
 
   const filteredBugs = filter
     ? bugs.filter((bug) => {
-        const value = bug[filter];
+        const key = filter === "buggyProgram" ? "progName" : filter;
+        const value =
+          filter === "buggyProgram" ? bug.buggyProgram?.progName : bug[filter];
         return value
           ? value.toString().toLowerCase().includes(searchTerm.toLowerCase())
           : false;
@@ -368,10 +375,13 @@ const ManagerDashboard = () => {
               <TableRow>
                 {[
                   "Bug ID",
-                  "Program",
+                  "Buggy Program",
+                  "Version",
+                  "Release",
+                  "Problem Summary",
+                  "Reported By",
                   "Type",
                   "Severity",
-                  "Reported By",
                   "Date",
                   "Area",
                   "Assigned To",
@@ -398,14 +408,17 @@ const ManagerDashboard = () => {
                       {bug.bug_id}
                     </a>
                   </TableCell>
-                  <TableCell>{bug.buggyProgram || "-"}</TableCell>
+                  <TableCell>{bug.buggyProgram?.progName || "-"}</TableCell>
+                  <TableCell>{bug.buggyProgram?.progVersion || "-"}</TableCell>
+                  <TableCell>{bug.buggyProgram?.progRelease || "-"}</TableCell>
+                  <TableCell>{bug.problemSummary || "-"}</TableCell>
+                  <TableCell>{bug.reportedBy || "-"}</TableCell>
                   <TableCell>{bug.reportType || "-"}</TableCell>
                   <TableCell>{bug.severity || "-"}</TableCell>
-                  <TableCell>{bug.reportedBy || "-"}</TableCell>
                   <TableCell>
                     {bug.reportDate ? bug.reportDate.split("T")[0] : "-"}
                   </TableCell>
-                  <TableCell>{bug.functionalArea || "-"}</TableCell>
+                  <TableCell>{bug.function?.funcName || "-"}</TableCell>
                   <TableCell>{bug.assignedTo || "-"}</TableCell>
                   <TableCell>{bug.status || "-"}</TableCell>
                   <TableCell>{bug.priority || "-"}</TableCell>

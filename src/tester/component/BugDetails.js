@@ -45,15 +45,6 @@ const TesterBugDetails = () => {
   const [attachments, setAttachments] = useState([]);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    fetch(`http://localhost:8080/bugs/${bugId}`)
-      .then((response) => response.json())
-      .then((data) => {
-        setEditDetails(data);
-      })
-      .catch((error) => console.error("Error fetching bug details: ", error));
-  }, [bugId]);
-
   const goToDashboard = () => {
     navigate("/TesterDashboard");
   };
@@ -62,6 +53,7 @@ const TesterBugDetails = () => {
     async function fetchBugDetails() {
       try {
         const response = await axios.get(`http://localhost:8080/bugs/${bugId}`);
+        setEditDetails(response.data);
         if (response.data.attachments && response.data.attachments.length > 0) {
           const fetchedAttachments = response.data.attachments.map(
             (attachment, index) => ({
@@ -147,6 +139,44 @@ const TesterBugDetails = () => {
     ([key]) => !["comments", "newComment", "attachments"].includes(key)
   );
 
+  const order = [
+    "bug_id",
+    "buggyProgram",
+    "reportType",
+    "severity",
+    "problemSummary",
+    "reproducible",
+    "detailedSummary",
+    "suggestion",
+    "reportedBy",
+    "reportDate",
+    "function",
+    "assignedTo",
+    "status",
+    "priority",
+    "resolution",
+    "resolutionProgram",
+    "resolvedBy",
+    "resolvedDate",
+    "testedBy",
+    "testedDate",
+    "treatAsDeferred",
+  ];
+
+  const sortedEntries = entries.sort((a, b) => {
+    return order.indexOf(a[0]) - order.indexOf(b[0]);
+  });
+
+  const formatValue = (value) => {
+    if (typeof value === "boolean") {
+      return value ? "Yes" : "No";
+    } else if (typeof value === "object" && value !== null) {
+      return `${value.progName} ${value.progVersion} Release ${value.progRelease}`;
+    } else {
+      return value;
+    }
+  };
+
   return (
     <div>
       <AppBar title="Bug Details" />
@@ -175,19 +205,13 @@ const TesterBugDetails = () => {
         <DetailTableContainer component={Paper}>
           <Table aria-label="simple table">
             <TableBody>
-              {entries.map(([key, value]) => (
+              {sortedEntries.map(([key, value]) => (
                 <StyledTableRow key={key}>
                   <StyledTableCell component="th" scope="row">
                     {key.charAt(0).toUpperCase() +
                       key.slice(1).replace(/([A-Z])/g, " $1")}
                   </StyledTableCell>
-                  <TableCell>
-                    {typeof value === "boolean"
-                      ? value
-                        ? "Yes"
-                        : "No"
-                      : value}
-                  </TableCell>
+                  <TableCell>{formatValue(value)}</TableCell>
                 </StyledTableRow>
               ))}
             </TableBody>

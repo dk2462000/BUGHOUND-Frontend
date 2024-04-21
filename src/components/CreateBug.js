@@ -1,25 +1,35 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import Button from "@mui/material/Button";
-import TextField from "@mui/material/TextField";
-import MenuItem from "@mui/material/MenuItem";
-import Checkbox from "@mui/material/Checkbox";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import "./CreateBug.css";
+import {
+  Button,
+  TextField,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Select,
+  Checkbox,
+  FormControlLabel,
+  Snackbar,
+  Alert,
+  Box,
+} from "@mui/material";
 import { useAuth } from "../context/AuthProvider";
 import { useNavigate } from "react-router-dom";
 import AppBar from "../AppBar";
+import "./CreateBug.css";
 
 function CreateBug() {
   const navigate = useNavigate();
   const { auth } = useAuth();
   const { user: username, userType } = auth;
-  const [programList, setProgramList] = useState({});
+  const [programs, setPrograms] = useState([]);
+  const [selectedProgram, setSelectedProgram] = useState("");
+  const [selectedVersion, setSelectedVersion] = useState("");
+  const [selectedRelease, setSelectedRelease] = useState("");
   const [files, setFiles] = useState([]);
   const [warning, setWarning] = useState("");
   const [bugData, setBugData] = useState({
-    buggyProgram: "",
-    buggyProgramVersion: "",
+    buggyProgramId: "",
     reportType: "",
     severity: "",
     attachments: [],
@@ -35,15 +45,7 @@ function CreateBug() {
     axios
       .get("http://localhost:8080/programs")
       .then((response) => {
-        const fetchedPrograms = response.data;
-        const groupedPrograms = {};
-        fetchedPrograms.forEach((program) => {
-          if (!groupedPrograms[program.program]) {
-            groupedPrograms[program.program] = [];
-          }
-          groupedPrograms[program.program].push(program.version);
-        });
-        setProgramList(groupedPrograms);
+        setPrograms(response.data);
       })
       .catch((error) => {
         console.error("Error fetching programs:", error);
@@ -52,14 +54,31 @@ function CreateBug() {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    if (name === "buggyProgram") {
-      setBugData({
-        ...bugData,
-        buggyProgram: value,
-        buggyProgramVersion: "", // Reset version when program changes
-      });
-    } else {
-      setBugData({ ...bugData, [name]: type === "checkbox" ? checked : value });
+    setBugData({ ...bugData, [name]: type === "checkbox" ? checked : value });
+  };
+
+  const handleProgramChange = (event) => {
+    const programName = event.target.value;
+    setSelectedProgram(programName);
+    setSelectedVersion("");
+    setSelectedRelease("");
+  };
+
+  const handleVersionChange = (event) => {
+    setSelectedVersion(event.target.value);
+    setSelectedRelease("");
+  };
+
+  const handleReleaseChange = (event) => {
+    setSelectedRelease(event.target.value);
+    const program = programs.find(
+      (p) =>
+        p.progName === selectedProgram &&
+        p.progVersion === selectedVersion &&
+        p.progRelease === event.target.value
+    );
+    if (program) {
+      setBugData({ ...bugData, buggyProgramId: program.id });
     }
   };
 
@@ -71,20 +90,19 @@ function CreateBug() {
     }
 
     const selectedFiles = Array.from(event.target.files);
-    const newFiles = selectedFiles.filter((file) => file.size <= 2097152); // Limit file size to 2MB
+    const newFiles = selectedFiles.filter((file) => file.size <= 2097152);
     if (selectedFiles.some((file) => file.size > 2097152)) {
       alert(
         "One or more files exceed the maximum size limit of 2MB and were not added."
       );
       event.target.value = "";
     }
-    const totalFiles = [...files, ...newFiles].slice(0, 3); // Limit to 3 files total
+    const totalFiles = [...files, ...newFiles].slice(0, 3);
     setFiles(totalFiles);
   };
 
   const removeFile = (index) => {
     setFiles((current) => current.filter((_, i) => i !== index));
-    setWarning("");
   };
 
   const handleSubmit = async (e) => {
@@ -95,12 +113,9 @@ function CreateBug() {
         return new Promise((resolve, reject) => {
           reader.onload = () => {
             const byteArray = new Uint8Array(reader.result);
-            const blob = new Blob([byteArray]);
-            console.log("Size of the blob in bytes:", blob.size);
-            const extension = file.name.split(".").pop();
             resolve({
               attachmentId: `${index + 1}`,
-              attachmentExt: extension, // Include the file extension
+              attachmentExt: file.name.split(".").pop(),
               attachmentData: Array.from(byteArray),
             });
           };
@@ -111,7 +126,6 @@ function CreateBug() {
     );
 
     const fullBugData = { ...bugData, attachments };
-
     try {
       const response = await axios.post(
         "http://localhost:8080/bugs/createBug",
@@ -155,54 +169,121 @@ function CreateBug() {
   return (
     <div>
       <AppBar title="Report Bug" />
-      <Button
-        onClick={goToDashboard}
-        variant="contained"
-        color="primary"
-        sx={{ mt: 2 }}
-      >
-        Back to Dashboard
-      </Button>
-      <div style={{ margin: "20px" }}>
-        {" "}
-        {/* Adds 20px margin around the div */}
-        {/* Your elements here */}
-      </div>
       <div className="create-bug-form">
         <h1>New Bug Report Entry Page</h1>
         <form onSubmit={handleSubmit}>
           <TextField
             select
             required
-            id="buggyProgram"
+            value={selectedProgram}
             label="Program"
-            value={bugData.buggyProgram}
-            onChange={handleChange}
-            name="buggyProgram"
+            onChange={handleProgramChange}
           >
-            {Object.keys(programList).map((program, index) => (
-              <MenuItem key={index} value={program}>
-                {program}
-              </MenuItem>
-            ))}
+            {Array.from(new Set(programs.map((p) => p.progName))).map(
+              (program, index) => (
+                <MenuItem key={index} value={program}>
+                  {program}
+                </MenuItem>
+              )
+            )}
           </TextField>
+          {/* <FormControl fullWidth>
+            <InputLabel>Program</InputLabel>
+            <Select
+              required
+              value={selectedProgram}
+              label="Program*"
+              onChange={handleProgramChange}
+            >
+              {Array.from(new Set(programs.map((p) => p.progName))).map(
+                (program, index) => (
+                  <MenuItem key={index} value={program}>
+                    {program}
+                  </MenuItem>
+                )
+              )}
+            </Select>
+          </FormControl> */}
           <TextField
             select
             required
-            id="buggyProgramVersion"
-            label="Program Version"
-            value={bugData.buggyProgramVersion}
-            onChange={handleChange}
-            name="buggyProgramVersion"
-            disabled={!bugData.buggyProgram}
+            value={selectedVersion}
+            label="Version"
+            onChange={handleVersionChange}
+            disabled={!selectedProgram}
           >
-            {bugData.buggyProgram &&
-              programList[bugData.buggyProgram].map((version, index) => (
+            {Array.from(
+              new Set(
+                programs
+                  .filter((p) => p.progName === selectedProgram)
+                  .map((p) => p.progVersion)
+              )
+            ).map((version, index) => (
+              <MenuItem key={index} value={version}>
+                {version}
+              </MenuItem>
+            ))}
+          </TextField>
+          {/* <FormControl fullWidth disabled={!selectedProgram}>
+            <InputLabel>Version</InputLabel>
+            <Select
+              value={selectedVersion}
+              label="Version*"
+              onChange={handleVersionChange}
+            >
+              {Array.from(
+                new Set(
+                  programs
+                    .filter((p) => p.progName === selectedProgram)
+                    .map((p) => p.progVersion)
+                )
+              ).map((version, index) => (
                 <MenuItem key={index} value={version}>
                   {version}
                 </MenuItem>
               ))}
+            </Select>
+          </FormControl> */}
+          <TextField
+            select
+            required
+            value={selectedRelease}
+            label="Release"
+            onChange={handleReleaseChange}
+            disabled={!selectedVersion}
+          >
+            {programs
+              .filter(
+                (p) =>
+                  p.progName === selectedProgram &&
+                  p.progVersion === selectedVersion
+              )
+              .map((p, index) => (
+                <MenuItem key={index} value={p.progRelease}>
+                  {p.progRelease}
+                </MenuItem>
+              ))}
           </TextField>
+          {/* <FormControl fullWidth>
+            <InputLabel>Release</InputLabel>
+            <Select
+              value={selectedRelease}
+              label="Release*"
+              onChange={handleReleaseChange}
+            >
+              {programs
+                .filter(
+                  (p) =>
+                    p.progName === selectedProgram &&
+                    p.progVersion === selectedVersion
+                )
+                .map((p, index) => (
+                  <MenuItem key={index} value={p.progRelease}>
+                    {p.progRelease}
+                  </MenuItem>
+                ))}
+            </Select>
+          </FormControl> */}
           <TextField
             select
             required
@@ -251,16 +332,22 @@ function CreateBug() {
             value={bugData.problemSummary}
             onChange={handleChange}
             name="problemSummary"
+            inputProps={{
+              maxLength: 100,
+            }}
           />
           <TextField
             required
             id="detailedSummary"
-            label="Detailed Description"
+            label="Detailed Summary"
             multiline
             rows={4}
             value={bugData.detailedSummary}
             onChange={handleChange}
             name="detailedSummary"
+            inputProps={{
+              maxLength: 200,
+            }}
           />
           <TextField
             id="suggestion"
@@ -270,6 +357,9 @@ function CreateBug() {
             value={bugData.suggestion}
             onChange={handleChange}
             name="suggestion"
+            inputProps={{
+              maxLength: 200,
+            }}
           />
           <TextField
             select
@@ -312,6 +402,14 @@ function CreateBug() {
           {warning && <p className="warning">{warning}</p>}
           <Button type="submit" variant="contained" color="primary">
             Submit
+          </Button>
+          <Button
+            onClick={goToDashboard}
+            variant="contained"
+            color="primary"
+            sx={{ mt: 2 }}
+          >
+            Cancel
           </Button>
         </form>
       </div>

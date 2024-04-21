@@ -16,6 +16,7 @@ import {
 import { styled } from "@mui/material/styles";
 import axios from "axios";
 import AppBar from "../../AppBar";
+import AttachmentViewer from "../../AttachmentViewer";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   fontWeight: "bold",
@@ -44,15 +45,6 @@ const DeveloperViewBugs = () => {
   const [attachments, setAttachments] = useState([]);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    fetch(`http://localhost:8080/bugs/${bugId}`)
-      .then((response) => response.json())
-      .then((data) => {
-        setEditDetails(data);
-      })
-      .catch((error) => console.error("Error fetching bug details: ", error));
-  }, [bugId]);
-
   const goToDashboard = () => {
     navigate("/DeveloperDashboard");
   };
@@ -61,6 +53,7 @@ const DeveloperViewBugs = () => {
     async function fetchBugDetails() {
       try {
         const response = await axios.get(`http://localhost:8080/bugs/${bugId}`);
+        setEditDetails(response.data);
         if (response.data.attachments && response.data.attachments.length > 0) {
           const fetchedAttachments = response.data.attachments.map(
             (attachment, index) => ({
@@ -114,6 +107,22 @@ const DeveloperViewBugs = () => {
     }
   }
 
+  // Add these states to manage the viewer modal
+  const [isViewerOpen, setIsViewerOpen] = useState(false);
+  const [selectedAttachment, setSelectedAttachment] = useState(null);
+
+  // Handler function to open the viewer
+  const openViewer = (attachment) => {
+    setSelectedAttachment({ ...attachment, bugId }); // Pass the bugId here
+    setIsViewerOpen(true);
+  };
+
+  // Handler function to close the viewer
+  const closeViewer = () => {
+    setIsViewerOpen(false);
+    setSelectedAttachment(null);
+  };
+
   if (!editDetails)
     return (
       <Box
@@ -129,6 +138,44 @@ const DeveloperViewBugs = () => {
   const entries = Object.entries(editDetails).filter(
     ([key]) => !["comments", "newComment", "attachments"].includes(key)
   );
+
+  const order = [
+    "bug_id",
+    "buggyProgram",
+    "reportType",
+    "severity",
+    "problemSummary",
+    "reproducible",
+    "detailedSummary",
+    "suggestion",
+    "reportedBy",
+    "reportDate",
+    "function",
+    "assignedTo",
+    "status",
+    "priority",
+    "resolution",
+    "resolutionProgram",
+    "resolvedBy",
+    "resolvedDate",
+    "testedBy",
+    "testedDate",
+    "treatAsDeferred",
+  ];
+
+  const sortedEntries = entries.sort((a, b) => {
+    return order.indexOf(a[0]) - order.indexOf(b[0]);
+  });
+
+  const formatValue = (value) => {
+    if (typeof value === "boolean") {
+      return value ? "Yes" : "No";
+    } else if (typeof value === "object" && value !== null) {
+      return `${value.progName} ${value.progVersion} Release ${value.progRelease}`;
+    } else {
+      return value;
+    }
+  };
 
   return (
     <div>
@@ -158,19 +205,13 @@ const DeveloperViewBugs = () => {
         <DetailTableContainer component={Paper}>
           <Table aria-label="simple table">
             <TableBody>
-              {entries.map(([key, value]) => (
+              {sortedEntries.map(([key, value]) => (
                 <StyledTableRow key={key}>
                   <StyledTableCell component="th" scope="row">
                     {key.charAt(0).toUpperCase() +
                       key.slice(1).replace(/([A-Z])/g, " $1")}
                   </StyledTableCell>
-                  <TableCell>
-                    {typeof value === "boolean"
-                      ? value
-                        ? "Yes"
-                        : "No"
-                      : value}
-                  </TableCell>
+                  <TableCell>{formatValue(value)}</TableCell>
                 </StyledTableRow>
               ))}
             </TableBody>
@@ -212,12 +253,10 @@ const DeveloperViewBugs = () => {
           {attachments.length > 0 ? (
             attachments.map((attachment, index) => (
               <div key={index}>
-                <a
-                  href={attachment.url}
-                  download={`Bug_${bugId}_Attachment${attachment.attachmentId}.${attachment.extension}`}
-                >
-                  Download Attachment {attachment.attachmentId}
-                </a>
+                {/* Add an onClick event to open the viewer */}
+                <Button onClick={() => openViewer(attachment)}>
+                  View Attachment {attachment.attachmentId}
+                </Button>
               </div>
             ))
           ) : (
@@ -225,6 +264,12 @@ const DeveloperViewBugs = () => {
           )}
         </div>
       </Box>
+      {isViewerOpen && (
+        <AttachmentViewer
+          attachment={selectedAttachment}
+          onClose={closeViewer}
+        />
+      )}
     </div>
   );
 };

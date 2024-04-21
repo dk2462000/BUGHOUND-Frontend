@@ -51,7 +51,7 @@ export default function AddFunction({ onAddFunction }) {
         p.progRelease === event.target.value
     );
     if (foundProgram) {
-      setProgramId(foundProgram.program_id);
+      setProgramId(foundProgram.id);
     }
   };
 
