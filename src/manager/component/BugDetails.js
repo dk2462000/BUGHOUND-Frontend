@@ -550,7 +550,7 @@ const ManagerBugDetails = () => {
                     href={attachment.url}
                     download={`Bug_${bugId}_Attachment${attachment.attachmentId}.${attachment.extension}`}
                   >
-                    Download Attachment {attachment.attachmentId}
+                    Download Attachment_{bugId}_{attachment.attachmentId}
                   </a>
                 </div>
               ))

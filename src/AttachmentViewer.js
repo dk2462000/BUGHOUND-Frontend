@@ -33,7 +33,7 @@ const AttachmentViewer = ({ attachment, onClose }) => {
         <img
           src={url}
           alt={`Attachment ${extension}`}
-          style={{ maxWidth: "500px" }}
+          style={{ maxWidth: "1000px" }}
         />
       );
       break;

@@ -255,7 +255,7 @@ const TesterBugDetails = () => {
               <div key={index}>
                 {/* Add an onClick event to open the viewer */}
                 <Button onClick={() => openViewer(attachment)}>
-                  View Attachment {attachment.attachmentId}
+                  View Attachment_{bugId}_{attachment.attachmentId}
                 </Button>
               </div>
             ))

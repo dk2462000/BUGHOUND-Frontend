@@ -114,7 +114,6 @@ function CreateBug() {
           reader.onload = () => {
             const byteArray = new Uint8Array(reader.result);
             resolve({
-              attachmentId: `${index + 1}`,
               attachmentExt: file.name.split(".").pop(),
               attachmentData: Array.from(byteArray),
             });
