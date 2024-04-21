@@ -388,7 +388,7 @@ function CreateBug() {
           <div className="file-input-container">
             <input type="file" id="file" multiple onChange={handleFileChange} />
             <label htmlFor="file" className="file-input-label">
-              Choose files (Max 3 files, 2MB each)
+              Choose Attachments
             </label>
           </div>
           {files.map((file, index) => (
