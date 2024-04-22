@@ -15,6 +15,7 @@ import {
 import axios from "axios";
 import AppBar from "../../AppBar";
 import { useAuth } from "../../context/AuthProvider";
+import AttachmentViewer from "../../AttachmentViewer";
 import {
   Card,
   CardContent,
@@ -35,13 +36,69 @@ const ManagerBugDetails = () => {
   const [functionalAreas, setFunctionalAreas] = useState([]);
   const [attachments, setAttachments] = useState([]);
   const [error, setError] = useState("");
+  const [buggyProgramId, setBuggyProgramId] = useState(null);
+  const [functionId, setFunctionId] = useState(null);
+  const [resolutionProgramId, setResolutionProgramId] = useState(null);
+  const [files, setFiles] = useState([]);
+  const [warning, setWarning] = useState("");
+
+  useEffect(() => {
+    const selectedFunction = functionalAreas.find(
+      (f) =>
+        f.funcName === editDetails.functionalArea &&
+        f.progName === editDetails.buggyProgram &&
+        f.progVersion === editDetails.buggyProgramVersion &&
+        f.progRelease === editDetails.buggyProgramRelease,
+    );
+
+    if (selectedFunction) {
+      setFunctionId(selectedFunction.funcId);
+    } else {
+      setFunctionId(null); // Reset if no match found
+    }
+  }, [
+    editDetails.buggyProgram,
+    editDetails.buggyProgramVersion,
+    editDetails.buggyProgramRelease,
+    editDetails.functionalArea,
+    functionalAreas,
+  ]);
+
+  useEffect(() => {
+    const selectedProgram = programs.find(
+      (p) =>
+        p.progName === editDetails.buggyProgram &&
+        p.progVersion === editDetails.resolutionVersion &&
+        p.progRelease === editDetails.resolutionRelease,
+    );
+
+    if (selectedProgram) {
+      setResolutionProgramId(selectedProgram.id);
+    } else {
+      setResolutionProgramId(null); // Reset if no match is found
+    }
+  }, [
+    editDetails.buggyProgram,
+    editDetails.resolutionVersion,
+    editDetails.resolutionRelease,
+    programs,
+  ]);
 
   useEffect(() => {
     fetch("http://localhost:8080/functions")
       .then((response) => response.json())
-      .then(setFunctionalAreas)
+      .then((data) => {
+        setFunctionalAreas(
+          data.map((item) => ({
+            ...item,
+            progName: item.progName,
+            progVersion: item.progVersion,
+            progRelease: item.progRelease,
+          })),
+        );
+      })
       .catch((error) =>
-        console.error("Error fetching functional areas: ", error)
+        console.error("Error fetching functional areas: ", error),
       );
 
     fetch(`http://localhost:8080/bugs/${bugId}`)
@@ -66,30 +123,64 @@ const ManagerBugDetails = () => {
   }, [bugId]);
 
   useEffect(() => {
-    async function fetchBugDetails() {
-      try {
-        const response = await axios.get(`http://localhost:8080/bugs/${bugId}`);
-        if (response.data.attachments && response.data.attachments.length > 0) {
-          const fetchedAttachments = response.data.attachments.map(
-            (attachment, index) => ({
-              ...attachment,
-              url: byteArrayToBlobUrl(
-                attachment.attachment,
-                attachment.attachmentExt
-              ),
-              extension: attachment.attachmentExt, // Use the extension from the database
-            })
-          );
-          setAttachments(fetchedAttachments);
-        } else {
-          setError("No attachments found for this bug.");
-        }
-      } catch (error) {
-        console.error("Failed to fetch bug details:", error);
-        setError("Failed to fetch attachments.");
-      }
+    const selectedProgram = programs.find(
+      (p) =>
+        p.progName === editDetails.buggyProgram &&
+        p.progVersion === editDetails.buggyProgramVersion &&
+        p.progRelease === editDetails.buggyProgramRelease,
+    );
+
+    if (selectedProgram) {
+      setBuggyProgramId(selectedProgram.id);
+    } else {
+      setBuggyProgramId(null); // Reset if no match found
     }
-    fetchBugDetails();
+  }, [
+    editDetails.buggyProgram,
+    editDetails.buggyProgramVersion,
+    editDetails.buggyProgramRelease,
+    programs,
+  ]); // Depend on these values
+
+  useEffect(() => {
+    fetch(`http://localhost:8080/bugs/${bugId}`)
+      .then((response) => response.json())
+      .then((data) => {
+        setEditDetails({
+          ...data,
+          buggyProgram: data.buggyProgram ? data.buggyProgram.progName : "",
+          buggyProgramVersion: data.buggyProgram
+            ? data.buggyProgram.progVersion
+            : "",
+          buggyProgramRelease: data.buggyProgram
+            ? data.buggyProgram.progRelease
+            : "",
+          reportDate: data.reportDate.split("T")[0], // Format the date for input[type="date"]
+          resolvedDate: data.resolvedDate
+            ? data.resolvedDate.split("T")[0]
+            : "",
+          testedDate: data.testedDate ? data.testedDate.split("T")[0] : "",
+          functionalArea: data.function ? data.function.funcName : "",
+          resolutionVersion: data.resolutionProgram
+            ? data.resolutionProgram.progVersion
+            : "",
+          resolutionRelease: data.resolutionProgram
+            ? data.resolutionProgram.progRelease
+            : "",
+        });
+        if (data.attachments && data.attachments.length > 0) {
+          const fetchedAttachments = data.attachments.map((attachment) => ({
+            ...attachment,
+            url: byteArrayToBlobUrl(
+              attachment.attachment,
+              attachment.attachmentExt,
+            ),
+            extension: attachment.attachmentExt,
+          }));
+          setAttachments(fetchedAttachments);
+        }
+      })
+      .catch((error) => console.error("Error fetching bug details: ", error));
   }, [bugId]);
 
   const handleInputChange = (e) => {
@@ -99,6 +190,23 @@ const ManagerBugDetails = () => {
       [name]: type === "checkbox" ? checked : value,
     }));
   };
+
+  // Add these states to manage the viewer modal
+  const [isViewerOpen, setIsViewerOpen] = useState(false);
+  const [selectedAttachment, setSelectedAttachment] = useState(null);
+
+  // Handler function to open the viewer
+  const openViewer = (attachment) => {
+    setSelectedAttachment({ ...attachment, bugId }); // Pass the bugId here
+    setIsViewerOpen(true);
+  };
+
+  // Handler function to close the viewer
+  const closeViewer = () => {
+    setIsViewerOpen(false);
+    setSelectedAttachment(null);
+  };
+
   const handleAddComment = () => {
     if (editDetails.newComment.trim() !== "") {
       const newComment = {
@@ -129,12 +237,105 @@ const ManagerBugDetails = () => {
     }
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleFileChange = (event) => {
+    if (files.length >= 3) {
+      setWarning("You can only attach a maximum of three files.");
+      event.target.value = "";
+      return;
+    }
+
+    const selectedFiles = Array.from(event.target.files);
+    const newFiles = selectedFiles.filter((file) => file.size <= 2097152); // 2MB size limit
+    if (selectedFiles.some((file) => file.size > 2097152)) {
+      setWarning(
+        "One or more files exceed the maximum size limit of 2MB and were not added.",
+      );
+      event.target.value = "";
+    }
+    const totalFiles = [...files, ...newFiles].slice(0, 3);
+    setFiles(totalFiles);
+    setWarning("");
+  };
+
+  const removeFile = (index) => {
+    setFiles((current) => current.filter((_, i) => i !== index));
+  };
+
+  const uploadAttachments = async () => {
+    const newAttachments = await Promise.all(
+      files.map(async (file) => {
+        const reader = new FileReader();
+        return new Promise((resolve, reject) => {
+          reader.onload = () => {
+            const byteArray = new Uint8Array(reader.result);
+            resolve({
+              attachmentExt: file.name.split(".").pop(),
+              attachmentData: btoa(String.fromCharCode(...byteArray)),
+            });
+          };
+          reader.onerror = () => reject(reader.error);
+          reader.readAsArrayBuffer(file);
+        });
+      }),
+    );
+
+    const updatedAttachments = [...attachments, ...newAttachments];
+
     fetch(`http://localhost:8080/bugs/${bugId}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(editDetails),
+      body: JSON.stringify({ attachments: newAttachments }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        alert("Attachments updated successfully!");
+        setAttachments(
+          data.attachments.map((attachment) => ({
+            ...attachment,
+            url: byteArrayToBlobUrl(
+              attachment.attachment,
+              attachment.attachmentExt,
+            ),
+            extension: attachment.attachmentExt,
+          })),
+        );
+        setFiles([]); // Clear the file input after successful upload
+      })
+      .catch((error) => {
+        console.error("Failed to update attachments: ", error);
+        alert("Failed to update attachments.");
+      });
+  };
+
+  const removeAttachment = (index) => {
+    setAttachments((current) => current.filter((_, i) => i !== index));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    const payload = {
+      ...editDetails,
+      buggyProgramId: buggyProgramId, // Add buggyProgramId to the payload
+      functionId: functionId,
+      resolutionProgramId: resolutionProgramId,
+    };
+
+    // Exclude program details from payload
+    delete payload.buggyProgram;
+    delete payload.buggyProgramVersion;
+    delete payload.buggyProgramRelease;
+    delete payload.attachments;
+    delete payload.functionalArea;
+
+    delete payload.resolutionProgram;
+    delete payload.resolutionVersion;
+    delete payload.resolutionRelease;
+
+    fetch(`http://localhost:8080/bugs/${bugId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
     })
       .then((response) => response.json())
       .then(() => {
@@ -151,7 +352,7 @@ const ManagerBugDetails = () => {
     const byteArrayInFormat = new Uint8Array(
       atob(byteArray)
         .split("")
-        .map((char) => char.charCodeAt(0))
+        .map((char) => char.charCodeAt(0)),
     );
     const blob = new Blob([byteArrayInFormat], {
       type: getMimeType(fileExtension),
@@ -219,12 +420,12 @@ const ManagerBugDetails = () => {
               label="Program"
               onChange={handleInputChange}
             >
-              {[...new Set(programs.map((p) => p.program))].map(
+              {[...new Set(programs.map((p) => p.progName))].map(
                 (programName, index) => (
                   <MenuItem key={index} value={programName}>
                     {programName}
                   </MenuItem>
-                )
+                ),
               )}
             </Select>
           </FormControl>
@@ -239,13 +440,40 @@ const ManagerBugDetails = () => {
               label="Program Version"
               onChange={handleInputChange}
             >
-              {programs
-                .filter((p) => p.program === editDetails.buggyProgram)
-                .map((option, index) => (
-                  <MenuItem key={index} value={option.version}>
-                    {option.version}
-                  </MenuItem>
-                ))}
+              {[
+                ...new Set(
+                  programs
+                    .filter((p) => p.progName === editDetails.buggyProgram)
+                    .map((program) => program.progVersion),
+                ),
+              ].map((version, index) => (
+                <MenuItem key={index} value={version}>
+                  {version}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
+          <FormControl fullWidth>
+            <InputLabel id="release-label">Release</InputLabel>
+            <Select
+              labelId="release-label"
+              name="buggyProgramRelease"
+              value={editDetails.buggyProgramRelease || ""}
+              label="Program Release"
+              onChange={handleInputChange}
+            >
+              {[
+                ...new Set(
+                  programs
+                    .filter((p) => p.progName === editDetails.buggyProgram)
+                    .map((program) => program.progRelease),
+                ),
+              ].map((release, index) => (
+                <MenuItem key={index} value={release}>
+                  {release}
+                </MenuItem>
+              ))}
             </Select>
           </FormControl>
 
@@ -357,11 +585,18 @@ const ManagerBugDetails = () => {
               label="Functional Area"
               onChange={handleInputChange}
             >
-              {functionalAreas.map((area, index) => (
-                <MenuItem key={index} value={area.funcName}>
-                  {area.funcName}
-                </MenuItem>
-              ))}
+              {functionalAreas
+                .filter(
+                  (area) =>
+                    area.progName === editDetails.buggyProgram &&
+                    area.progVersion === editDetails.buggyProgramVersion &&
+                    area.progRelease === editDetails.buggyProgramRelease,
+                )
+                .map((area, index) => (
+                  <MenuItem key={index} value={area.funcName}>
+                    {area.funcName}
+                  </MenuItem>
+                ))}
             </Select>
           </FormControl>
 
@@ -456,13 +691,43 @@ const ManagerBugDetails = () => {
               onChange={handleInputChange}
             >
               {/* Dynamic list of software versions */}
-              {programs
-                .filter((p) => p.program === editDetails.buggyProgram)
-                .map((option, index) => (
-                  <MenuItem key={index} value={option.version}>
-                    {option.version}
-                  </MenuItem>
-                ))}
+              {[
+                ...new Set(
+                  programs
+                    .filter((p) => p.progName === editDetails.buggyProgram)
+                    .map((program) => program.progVersion),
+                ),
+              ].map((version, index) => (
+                <MenuItem key={index} value={version}>
+                  {version}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
+          <FormControl fullWidth>
+            <InputLabel id="resolutionRelease-label">
+              Resolution Release
+            </InputLabel>
+            <Select
+              labelId="resolutionRelease-label"
+              name="resolutionRelease"
+              value={editDetails.resolutionRelease || ""}
+              label="Resolution Release"
+              onChange={handleInputChange}
+            >
+              {/* Dynamic list of software versions */}
+              {[
+                ...new Set(
+                  programs
+                    .filter((p) => p.progName === editDetails.buggyProgram)
+                    .map((program) => program.progRelease),
+                ),
+              ].map((release, index) => (
+                <MenuItem key={index} value={release}>
+                  {release}
+                </MenuItem>
+              ))}
             </Select>
           </FormControl>
 
@@ -546,18 +811,55 @@ const ManagerBugDetails = () => {
             {attachments.length > 0 ? (
               attachments.map((attachment, index) => (
                 <div key={index}>
-                  <a
-                    href={attachment.url}
-                    download={`Bug_${bugId}_Attachment${attachment.attachmentId}.${attachment.extension}`}
+                  <Button
+                    onClick={() => openViewer(attachment)}
+                    variant="outlined"
+                    color="primary"
                   >
-                    Download Attachment_{bugId}_{attachment.attachmentId}
-                  </a>
+                    View Attachment_{bugId}_{attachment.attachmentId}
+                  </Button>
+                  <Button
+                    onClick={() => removeAttachment(index)}
+                    color="secondary"
+                  >
+                    Remove
+                  </Button>
                 </div>
               ))
             ) : (
               <p>{error}</p>
             )}
           </div>
+          <div className="file-input-container">
+            <input type="file" id="file" multiple onChange={handleFileChange} />
+            <label htmlFor="file" className="file-input-label">
+              Choose Attachments
+            </label>
+          </div>
+          {files.map((file, index) => (
+            <div key={index}>
+              {file.name}{" "}
+              <Button onClick={() => removeFile(index)} color="secondary">
+                Remove
+              </Button>
+            </div>
+          ))}
+          {warning && <p className="warning">{warning}</p>}
+          <Button
+            onClick={uploadAttachments}
+            variant="contained"
+            color="primary"
+          >
+            Upload New Attachments
+          </Button>
+
+          {isViewerOpen && (
+            <AttachmentViewer
+              attachment={selectedAttachment}
+              onClose={closeViewer}
+            />
+          )}
+
           <TextField
             label="Add a Comment"
             name="newComment"
