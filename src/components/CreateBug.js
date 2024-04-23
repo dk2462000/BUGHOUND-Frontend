@@ -113,9 +113,14 @@ function CreateBug() {
         return new Promise((resolve, reject) => {
           reader.onload = () => {
             const byteArray = new Uint8Array(reader.result);
+            let binaryString = "";
+            for (let i = 0; i < byteArray.byteLength; i++) {
+              binaryString += String.fromCharCode(byteArray[i]);
+            }
+            const base64Data = btoa(binaryString);
             resolve({
               attachmentExt: file.name.split(".").pop(),
-              attachmentData: Array.from(byteArray),
+              attachmentData: base64Data,
             });
           };
           reader.onerror = reject;

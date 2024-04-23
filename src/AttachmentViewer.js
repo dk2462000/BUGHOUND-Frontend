@@ -46,7 +46,17 @@ const AttachmentViewer = ({ attachment, onClose }) => {
       break;
     // Add more cases as needed
     default:
-      content = <p>Unsupported file type</p>;
+      if (["xlsx", "docx"].includes(extension.toLowerCase())) {
+        content = (
+          <p>
+            This file type cannot be previewed directly in the browser. Please
+            download it to view.
+          </p>
+        );
+      } else {
+        content = <p>Unsupported file type</p>;
+      }
+      break;
   }
 
   return (
@@ -57,7 +67,9 @@ const AttachmentViewer = ({ attachment, onClose }) => {
       aria-describedby="attachment-viewer-description"
     >
       <Box sx={style}>
-        <h2 id="attachment-viewer-title">Attachment Viewer</h2>
+        <h2 id="attachment-viewer-title">
+          Attachment Bug_{bugId}_{attachmentId}
+        </h2>
         {content}
         <Button onClick={onClose}>Close</Button>
         {/* Modify the download attribute here */}
@@ -81,6 +93,8 @@ function getMimeType(extension) {
     case "jpg":
     case "jpeg":
       return "image/jpeg";
+    case "xlsx":
+      return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
     case "png":
       return "image/png";
     case "txt":

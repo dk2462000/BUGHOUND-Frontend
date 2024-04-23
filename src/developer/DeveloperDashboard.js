@@ -322,6 +322,12 @@ const DeveloperDashboard = () => {
                 disabled={!reportFilter}
               />
             )}
+            <Typography
+              style={{ margin: "25px", fontSize: "16px" }}
+              variant="body1"
+            >
+              {`${filteredReportedBugs.length} of ${reportedBugs.length}`} Bugs
+            </Typography>
           </div>
           <Table sx={{ minWidth: 650 }} aria-label="simple table">
             <TableHead style={{ background: "#4fade4", fontWeight: "bold" }}>
@@ -482,6 +488,12 @@ const DeveloperDashboard = () => {
                 disabled={!assignFilter}
               />
             )}
+            <Typography
+              style={{ margin: "25px", fontSize: "16px" }}
+              variant="body1"
+            >
+              {`${filteredAssignedBugs.length} of ${assignedBugs.length}`} Bugs
+            </Typography>
           </div>
           <Table sx={{ minWidth: 650 }} aria-label="simple table">
             <TableHead style={{ background: "#4fade4", fontWeight: "bold" }}>
