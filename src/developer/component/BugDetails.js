@@ -49,7 +49,11 @@ const DeveloperBugDetails = () => {
         f.progName === editDetails.buggyProgram &&
         f.progVersion === editDetails.buggyProgramVersion &&
 <<<<<<< HEAD
+<<<<<<< HEAD
         f.progRelease === editDetails.buggyProgramRelease
+=======
+        f.progRelease === editDetails.buggyProgramRelease,
+>>>>>>> 292c3381aa5249c9a84e8edd215f72c23b94ef12
 =======
         f.progRelease === editDetails.buggyProgramRelease,
 >>>>>>> 292c3381aa5249c9a84e8edd215f72c23b94ef12
@@ -74,7 +78,11 @@ const DeveloperBugDetails = () => {
         p.progName === editDetails.buggyProgram &&
         p.progVersion === editDetails.resolutionVersion &&
 <<<<<<< HEAD
+<<<<<<< HEAD
         p.progRelease === editDetails.resolutionRelease
+=======
+        p.progRelease === editDetails.resolutionRelease,
+>>>>>>> 292c3381aa5249c9a84e8edd215f72c23b94ef12
 =======
         p.progRelease === editDetails.resolutionRelease,
 >>>>>>> 292c3381aa5249c9a84e8edd215f72c23b94ef12
@@ -103,7 +111,11 @@ const DeveloperBugDetails = () => {
             progVersion: item.progVersion,
             progRelease: item.progRelease,
 <<<<<<< HEAD
+<<<<<<< HEAD
           }))
+=======
+          })),
+>>>>>>> 292c3381aa5249c9a84e8edd215f72c23b94ef12
 =======
           })),
 >>>>>>> 292c3381aa5249c9a84e8edd215f72c23b94ef12
@@ -140,7 +152,11 @@ const DeveloperBugDetails = () => {
         p.progName === editDetails.buggyProgram &&
         p.progVersion === editDetails.buggyProgramVersion &&
 <<<<<<< HEAD
+<<<<<<< HEAD
         p.progRelease === editDetails.buggyProgramRelease
+=======
+        p.progRelease === editDetails.buggyProgramRelease,
+>>>>>>> 292c3381aa5249c9a84e8edd215f72c23b94ef12
 =======
         p.progRelease === editDetails.buggyProgramRelease,
 >>>>>>> 292c3381aa5249c9a84e8edd215f72c23b94ef12
@@ -190,7 +206,11 @@ const DeveloperBugDetails = () => {
             url: byteArrayToBlobUrl(
               attachment.attachment,
 <<<<<<< HEAD
+<<<<<<< HEAD
               attachment.attachmentExt
+=======
+              attachment.attachmentExt,
+>>>>>>> 292c3381aa5249c9a84e8edd215f72c23b94ef12
 =======
               attachment.attachmentExt,
 >>>>>>> 292c3381aa5249c9a84e8edd215f72c23b94ef12
@@ -269,7 +289,11 @@ const DeveloperBugDetails = () => {
     if (selectedFiles.some((file) => file.size > 2097152)) {
       setWarning(
 <<<<<<< HEAD
+<<<<<<< HEAD
         "One or more files exceed the maximum size limit of 2MB and were not added."
+=======
+        "One or more files exceed the maximum size limit of 2MB and were not added.",
+>>>>>>> 292c3381aa5249c9a84e8edd215f72c23b94ef12
 =======
         "One or more files exceed the maximum size limit of 2MB and were not added.",
 >>>>>>> 292c3381aa5249c9a84e8edd215f72c23b94ef12
@@ -301,7 +325,11 @@ const DeveloperBugDetails = () => {
           reader.readAsArrayBuffer(file);
         });
 <<<<<<< HEAD
+<<<<<<< HEAD
       })
+=======
+      }),
+>>>>>>> 292c3381aa5249c9a84e8edd215f72c23b94ef12
 =======
       }),
 >>>>>>> 292c3381aa5249c9a84e8edd215f72c23b94ef12
@@ -323,15 +351,21 @@ const DeveloperBugDetails = () => {
             url: byteArrayToBlobUrl(
               attachment.attachment,
 <<<<<<< HEAD
+<<<<<<< HEAD
               attachment.attachmentExt
             ),
             extension: attachment.attachmentExt,
           }))
 =======
+=======
+>>>>>>> 292c3381aa5249c9a84e8edd215f72c23b94ef12
               attachment.attachmentExt,
             ),
             extension: attachment.attachmentExt,
           })),
+<<<<<<< HEAD
+>>>>>>> 292c3381aa5249c9a84e8edd215f72c23b94ef12
+=======
 >>>>>>> 292c3381aa5249c9a84e8edd215f72c23b94ef12
         );
         setFiles([]); // Clear the file input after successful upload
@@ -480,7 +514,11 @@ const DeveloperBugDetails = () => {
                   programs
                     .filter((p) => p.progName === editDetails.buggyProgram)
 <<<<<<< HEAD
+<<<<<<< HEAD
                     .map((program) => program.progVersion)
+=======
+                    .map((program) => program.progVersion),
+>>>>>>> 292c3381aa5249c9a84e8edd215f72c23b94ef12
 =======
                     .map((program) => program.progVersion),
 >>>>>>> 292c3381aa5249c9a84e8edd215f72c23b94ef12
@@ -507,7 +545,11 @@ const DeveloperBugDetails = () => {
                   programs
                     .filter((p) => p.progName === editDetails.buggyProgram)
 <<<<<<< HEAD
+<<<<<<< HEAD
                     .map((program) => program.progRelease)
+=======
+                    .map((program) => program.progRelease),
+>>>>>>> 292c3381aa5249c9a84e8edd215f72c23b94ef12
 =======
                     .map((program) => program.progRelease),
 >>>>>>> 292c3381aa5249c9a84e8edd215f72c23b94ef12
@@ -637,7 +679,11 @@ const DeveloperBugDetails = () => {
                     area.progName === editDetails.buggyProgram &&
                     area.progVersion === editDetails.buggyProgramVersion &&
 <<<<<<< HEAD
+<<<<<<< HEAD
                     area.progRelease === editDetails.buggyProgramRelease
+=======
+                    area.progRelease === editDetails.buggyProgramRelease,
+>>>>>>> 292c3381aa5249c9a84e8edd215f72c23b94ef12
 =======
                     area.progRelease === editDetails.buggyProgramRelease,
 >>>>>>> 292c3381aa5249c9a84e8edd215f72c23b94ef12
@@ -746,7 +792,11 @@ const DeveloperBugDetails = () => {
                   programs
                     .filter((p) => p.progName === editDetails.buggyProgram)
 <<<<<<< HEAD
+<<<<<<< HEAD
                     .map((program) => program.progVersion)
+=======
+                    .map((program) => program.progVersion),
+>>>>>>> 292c3381aa5249c9a84e8edd215f72c23b94ef12
 =======
                     .map((program) => program.progVersion),
 >>>>>>> 292c3381aa5249c9a84e8edd215f72c23b94ef12
@@ -776,7 +826,11 @@ const DeveloperBugDetails = () => {
                   programs
                     .filter((p) => p.progName === editDetails.buggyProgram)
 <<<<<<< HEAD
+<<<<<<< HEAD
                     .map((program) => program.progRelease)
+=======
+                    .map((program) => program.progRelease),
+>>>>>>> 292c3381aa5249c9a84e8edd215f72c23b94ef12
 =======
                     .map((program) => program.progRelease),
 >>>>>>> 292c3381aa5249c9a84e8edd215f72c23b94ef12
@@ -877,7 +931,11 @@ const DeveloperBugDetails = () => {
                     View Attachment_{bugId}_{attachment.attachmentId}
                   </Button>
 <<<<<<< HEAD
+<<<<<<< HEAD
                   {/* <Button
+=======
+                  <Button
+>>>>>>> 292c3381aa5249c9a84e8edd215f72c23b94ef12
 =======
                   <Button
 >>>>>>> 292c3381aa5249c9a84e8edd215f72c23b94ef12
@@ -886,7 +944,11 @@ const DeveloperBugDetails = () => {
                   >
                     Remove
 <<<<<<< HEAD
+<<<<<<< HEAD
                   </Button> */}
+=======
+                  </Button>
+>>>>>>> 292c3381aa5249c9a84e8edd215f72c23b94ef12
 =======
                   </Button>
 >>>>>>> 292c3381aa5249c9a84e8edd215f72c23b94ef12
@@ -915,8 +977,12 @@ const DeveloperBugDetails = () => {
             onClick={uploadAttachments}
             variant="contained"
 <<<<<<< HEAD
+<<<<<<< HEAD
             color="secondary"
             sx={{ mt: 2 }}
+=======
+            color="primary"
+>>>>>>> 292c3381aa5249c9a84e8edd215f72c23b94ef12
 =======
             color="primary"
 >>>>>>> 292c3381aa5249c9a84e8edd215f72c23b94ef12
