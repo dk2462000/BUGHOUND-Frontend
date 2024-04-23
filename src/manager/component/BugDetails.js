@@ -48,7 +48,11 @@ const ManagerBugDetails = () => {
         f.funcName === editDetails.functionalArea &&
         f.progName === editDetails.buggyProgram &&
         f.progVersion === editDetails.buggyProgramVersion &&
+<<<<<<< HEAD
         f.progRelease === editDetails.buggyProgramRelease
+=======
+        f.progRelease === editDetails.buggyProgramRelease,
+>>>>>>> 292c3381aa5249c9a84e8edd215f72c23b94ef12
     );
 
     if (selectedFunction) {
@@ -69,7 +73,11 @@ const ManagerBugDetails = () => {
       (p) =>
         p.progName === editDetails.buggyProgram &&
         p.progVersion === editDetails.resolutionVersion &&
+<<<<<<< HEAD
         p.progRelease === editDetails.resolutionRelease
+=======
+        p.progRelease === editDetails.resolutionRelease,
+>>>>>>> 292c3381aa5249c9a84e8edd215f72c23b94ef12
     );
 
     if (selectedProgram) {
@@ -94,11 +102,15 @@ const ManagerBugDetails = () => {
             progName: item.progName,
             progVersion: item.progVersion,
             progRelease: item.progRelease,
+<<<<<<< HEAD
           }))
+=======
+          })),
+>>>>>>> 292c3381aa5249c9a84e8edd215f72c23b94ef12
         );
       })
       .catch((error) =>
-        console.error("Error fetching functional areas: ", error)
+        console.error("Error fetching functional areas: ", error),
       );
 
     fetch(`http://localhost:8080/bugs/${bugId}`)
@@ -127,7 +139,11 @@ const ManagerBugDetails = () => {
       (p) =>
         p.progName === editDetails.buggyProgram &&
         p.progVersion === editDetails.buggyProgramVersion &&
+<<<<<<< HEAD
         p.progRelease === editDetails.buggyProgramRelease
+=======
+        p.progRelease === editDetails.buggyProgramRelease,
+>>>>>>> 292c3381aa5249c9a84e8edd215f72c23b94ef12
     );
 
     if (selectedProgram) {
@@ -173,7 +189,11 @@ const ManagerBugDetails = () => {
             ...attachment,
             url: byteArrayToBlobUrl(
               attachment.attachment,
+<<<<<<< HEAD
               attachment.attachmentExt
+=======
+              attachment.attachmentExt,
+>>>>>>> 292c3381aa5249c9a84e8edd215f72c23b94ef12
             ),
             extension: attachment.attachmentExt,
           }));
@@ -248,7 +268,11 @@ const ManagerBugDetails = () => {
     const newFiles = selectedFiles.filter((file) => file.size <= 2097152); // 2MB size limit
     if (selectedFiles.some((file) => file.size > 2097152)) {
       setWarning(
+<<<<<<< HEAD
         "One or more files exceed the maximum size limit of 2MB and were not added."
+=======
+        "One or more files exceed the maximum size limit of 2MB and were not added.",
+>>>>>>> 292c3381aa5249c9a84e8edd215f72c23b94ef12
       );
       event.target.value = "";
     }
@@ -268,6 +292,7 @@ const ManagerBugDetails = () => {
         return new Promise((resolve, reject) => {
           reader.onload = () => {
             const byteArray = new Uint8Array(reader.result);
+<<<<<<< HEAD
             let binaryString = "";
             for (let i = 0; i < byteArray.byteLength; i++) {
               binaryString += String.fromCharCode(byteArray[i]);
@@ -276,12 +301,21 @@ const ManagerBugDetails = () => {
             resolve({
               attachmentExt: file.name.split(".").pop(),
               attachmentData: base64Data,
+=======
+            resolve({
+              attachmentExt: file.name.split(".").pop(),
+              attachmentData: btoa(String.fromCharCode(...byteArray)),
+>>>>>>> 292c3381aa5249c9a84e8edd215f72c23b94ef12
             });
           };
           reader.onerror = () => reject(reader.error);
           reader.readAsArrayBuffer(file);
         });
+<<<<<<< HEAD
       })
+=======
+      }),
+>>>>>>> 292c3381aa5249c9a84e8edd215f72c23b94ef12
     );
 
     const updatedAttachments = [...attachments, ...newAttachments];
@@ -299,10 +333,17 @@ const ManagerBugDetails = () => {
             ...attachment,
             url: byteArrayToBlobUrl(
               attachment.attachment,
+<<<<<<< HEAD
               attachment.attachmentExt
             ),
             extension: attachment.attachmentExt,
           }))
+=======
+              attachment.attachmentExt,
+            ),
+            extension: attachment.attachmentExt,
+          })),
+>>>>>>> 292c3381aa5249c9a84e8edd215f72c23b94ef12
         );
         setFiles([]); // Clear the file input after successful upload
       })
@@ -357,7 +398,7 @@ const ManagerBugDetails = () => {
     const byteArrayInFormat = new Uint8Array(
       atob(byteArray)
         .split("")
-        .map((char) => char.charCodeAt(0))
+        .map((char) => char.charCodeAt(0)),
     );
     const blob = new Blob([byteArrayInFormat], {
       type: getMimeType(fileExtension),
@@ -430,7 +471,7 @@ const ManagerBugDetails = () => {
                   <MenuItem key={index} value={programName}>
                     {programName}
                   </MenuItem>
-                )
+                ),
               )}
             </Select>
           </FormControl>
@@ -449,7 +490,11 @@ const ManagerBugDetails = () => {
                 ...new Set(
                   programs
                     .filter((p) => p.progName === editDetails.buggyProgram)
+<<<<<<< HEAD
                     .map((program) => program.progVersion)
+=======
+                    .map((program) => program.progVersion),
+>>>>>>> 292c3381aa5249c9a84e8edd215f72c23b94ef12
                 ),
               ].map((version, index) => (
                 <MenuItem key={index} value={version}>
@@ -472,7 +517,11 @@ const ManagerBugDetails = () => {
                 ...new Set(
                   programs
                     .filter((p) => p.progName === editDetails.buggyProgram)
+<<<<<<< HEAD
                     .map((program) => program.progRelease)
+=======
+                    .map((program) => program.progRelease),
+>>>>>>> 292c3381aa5249c9a84e8edd215f72c23b94ef12
                 ),
               ].map((release, index) => (
                 <MenuItem key={index} value={release}>
@@ -598,7 +647,11 @@ const ManagerBugDetails = () => {
                   (area) =>
                     area.progName === editDetails.buggyProgram &&
                     area.progVersion === editDetails.buggyProgramVersion &&
+<<<<<<< HEAD
                     area.progRelease === editDetails.buggyProgramRelease
+=======
+                    area.progRelease === editDetails.buggyProgramRelease,
+>>>>>>> 292c3381aa5249c9a84e8edd215f72c23b94ef12
                 )
                 .map((area, index) => (
                   <MenuItem key={index} value={area.funcName}>
@@ -703,7 +756,11 @@ const ManagerBugDetails = () => {
                 ...new Set(
                   programs
                     .filter((p) => p.progName === editDetails.buggyProgram)
+<<<<<<< HEAD
                     .map((program) => program.progVersion)
+=======
+                    .map((program) => program.progVersion),
+>>>>>>> 292c3381aa5249c9a84e8edd215f72c23b94ef12
                 ),
               ].map((version, index) => (
                 <MenuItem key={index} value={version}>
@@ -729,7 +786,11 @@ const ManagerBugDetails = () => {
                 ...new Set(
                   programs
                     .filter((p) => p.progName === editDetails.buggyProgram)
+<<<<<<< HEAD
                     .map((program) => program.progRelease)
+=======
+                    .map((program) => program.progRelease),
+>>>>>>> 292c3381aa5249c9a84e8edd215f72c23b94ef12
                 ),
               ].map((release, index) => (
                 <MenuItem key={index} value={release}>
@@ -826,12 +887,20 @@ const ManagerBugDetails = () => {
                   >
                     View Attachment_{bugId}_{attachment.attachmentId}
                   </Button>
+<<<<<<< HEAD
                   {/* <Button
+=======
+                  <Button
+>>>>>>> 292c3381aa5249c9a84e8edd215f72c23b94ef12
                     onClick={() => removeAttachment(index)}
                     color="secondary"
                   >
                     Remove
+<<<<<<< HEAD
                   </Button> */}
+=======
+                  </Button>
+>>>>>>> 292c3381aa5249c9a84e8edd215f72c23b94ef12
                 </div>
               ))
             ) : (
@@ -856,7 +925,11 @@ const ManagerBugDetails = () => {
           <Button
             onClick={uploadAttachments}
             variant="contained"
+<<<<<<< HEAD
             color="secondary"
+=======
+            color="primary"
+>>>>>>> 292c3381aa5249c9a84e8edd215f72c23b94ef12
           >
             Upload New Attachments
           </Button>

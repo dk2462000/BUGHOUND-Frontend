@@ -18,7 +18,7 @@ const AttachmentViewer = ({ attachment, onClose }) => {
   if (!attachment) return null;
 
   const { url, extension, bugId, attachmentId } = attachment;
-
+  
   let content;
   const mimeType = getMimeType(extension);
   switch (mimeType) {
@@ -87,6 +87,11 @@ const AttachmentViewer = ({ attachment, onClose }) => {
 
 // Function to map file extensions to MIME types
 function getMimeType(extension) {
+  if (!extension) {
+    console.error("Received undefined or null extension for MIME type detection");
+    return "application/octet-stream"; // Safe fallback
+  }
+
   switch (extension.toLowerCase()) {
     case "pdf":
       return "application/pdf";
@@ -100,10 +105,9 @@ function getMimeType(extension) {
     case "txt":
       return "text/plain";
     case "xml":
-      return "text/xml"; // Some browsers use application/xml, adjust as needed
+      return "text/xml";
     case "docx":
       return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-    // Add more MIME types as needed
     default:
       return "application/octet-stream";
   }
